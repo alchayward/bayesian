@@ -1,0 +1,3 @@
+set REDIS_HOST=localhost
+set REDIS_PORT=6379
+set WAIT_TIME=600
