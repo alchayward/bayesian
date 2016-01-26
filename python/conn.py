@@ -31,6 +31,9 @@ class SessionConnection:
     def team_list_key(self):
         return "".join([self.session_key,":t_ids:"])
 
+    def write_map(self,key,hmap):
+        for key,val in 
+        self.r_conn.hset
     def game_key(self,game_id):
         return "".join([self.session_key,":game:",str(game_id)])
         
@@ -40,9 +43,8 @@ class SessionConnection:
     def strength_key(self,team_id):
         return "".join([self.session_key,":strengths:",str(team_id)])
     
-    def kl_key(self,team1_id,team2_id):
-        return "".join([self.session_key,":kl:t1:",str(team1_id),
-                                           ':t2:',str(team2_id)])
+    def kl_key(self,ind):
+        return "".join([self.session_key,":kl:",str(ind)])
     
     def property_key(self,game_id,prop):
         return "".join([self.game_key(game_id),':',prop])
@@ -56,6 +58,7 @@ class SessionConnection:
     def get_game_property(self,id,prop):
         return int(self.r_conn.get(self.property_key(id,prop)))
     
+
     def get_game(self,game_id):
         game = {'id':game_id}
         for prop in game_properties:
@@ -70,11 +73,28 @@ class SessionConnection:
     def set_strengths(self,team_strengths):
         for team_id in team_strengths:
             self.r_conn.set(self.strength_key(team_id),team_strengths[team_id])
-      
-    def set_kl(self,kl_graph):
-        for edge in kl_graph:
-            self.r_conn.set(self.kl_key(edge['t1'],edge['t2']),edge['weight'])
+    
+    def set_kl_edge(self,ind,t1,t2,val):
+        key = self.kl_key(ind)
+        self.r_conn.hset(key,'t1',str(t1))
+        self.r_conn.hset(key,'t2',str(t2))
+        self.r_conn.hset(key,'val',str(val))
+
+    def set_kl_vec(self,ind):
+        for ind,val in enumerate(kl_vec):
+            set_kl_edge(ind,team_inds[ind][0],team_inds[ind][1],val)
+
+    def get_kl_edge(self,kl_vec,team_inds):
+        key = self.kl_key(ind)
+        d = {}
+        d['t1'] = int(self.r_conn.hget(key,'t1'))
+        d['t2'] = int(self.r_conn.hget(key,'t2'))
+        d['val'] = float(self.r_conn.hget(key,'val'))
+
+    def get_kl_dict(self):
         
+        
+
     def set_game_property(self,game_id,prop,val):
         self.r_conn.set(self.property_key(game_id,prop),val)
 

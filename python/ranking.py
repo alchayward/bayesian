@@ -1,6 +1,7 @@
 # Current problems/restrictions:
 # Can't play the same team more than once.
 
+import multiprocessing
 import tournament 
 from tournament import Session,Game
 import networkx as nx
@@ -10,6 +11,35 @@ from scipy import cosh, rand, log
 from scipy.special import gammaincc, gammaln
 from numpy import dot,exp,array
 #import matplotlib.pyplot as plt
+
+
+
+def parfun(f,q_in,q_out):
+    while True:
+        i,x = q_in.get()
+        if i is None:
+            break
+        q_out.put((i,f(x)))
+
+def parmap(f, X, nprocs = multiprocessing.cpu_count()):
+    q_in   = multiprocessing.Queue(1)
+    q_out  = multiprocessing.Queue()
+
+    proc = [multiprocessing.Process(target=parfun,args=(f,q_in,q_out)) for _ in range(nprocs)]
+    for p in proc:
+        p.daemon = True
+        p.start()
+
+    sent = [q_in.put((i,x)) for i,x in enumerate(X)]
+    [q_in.put((None,None)) for _ in range(nprocs)]
+    res = [q_out.get() for _ in range(len(sent))]
+
+    [p.join() for p in proc]
+
+    return [x for i,x in sorted(res)]
+
+
+
 
 def log_2_pois_like(d,a,s1,s2): #taken out the max_score  limit for now
     dp = 1.0*np.arctan(d)
@@ -30,6 +60,27 @@ def log_d_pois_like_trunc_5(d,s1,s2,a):
     
 class double_model():
     
+    def kl_func(self):
+        scores = range(self.max_score+1)
+        f = self.prob_func
+        a = self.mcmc.scale.trace[:]
+        trace = self.mcmc.marginal_delta.trace[:,:]
+        def kl(ind):
+            def expect(fn):
+                return np.mean(fn(trace[:,ind]))
+            
+            Epr = np.array([[expect( lambda x: exp(f(x,a,s1,s2)))
+                 for s1 in scores] for s2 in scores])
+            Elogpr = np.array([[expect( lambda x: f(x,a,s1,s2) )
+                 for s1 in scores] for s2 in scores])
+            Eprlogpr = np.array( [[expect(lambda x: exp(f(x,a,s1,s2))*f(x,a,s1,s2)) 
+                 for s1 in scores ] for s2 in scores])
+        
+            return np.sum(Eprlogpr)-np.sum(Epr*Elogpr)
+        return kl  
+
+
+
     def strengths(self):
         return self.mcmc.theta.stats()['mean']
         
@@ -131,8 +182,8 @@ class double_model():
         self.scale = 2.0
         
         # MC parameters
-        self.mc_points = 1000
-        self.mc_burn = 100
+        self.mc_points = 100000
+        self.mc_burn = 10000
         self.mc_steps = 4
     
         # This counter changes after refitting, it is rembmered by entities
@@ -186,18 +237,25 @@ class double_model():
     def get_info_weight(self,n1,n2):
         return self.infoGraph[n1][n2]['weight']
 
-    def kl_info_dict(self):
+    def kl_info_vec(self):
+        f = kl_func()
+        parmap(f,range(len(s.marginal_ind)))
+
+    def kl_info_dict(self,kl_vec):
         g={}
         n= self.n_teams
         def inner_dict(ii):
            ts = filter(lambda x:not x == ii,range(n))
            return dict(zip(ts, 
-            [self.infoGraph[jj][ii]['weight'].info
-                for jj in ts]))
+            [None for jj in ts]))
 
-        return dict(zip(range(n),
+        d = dict(zip(range(n),
                 [inner_dict(ii) for ii in range(n)]))
-
+        for ind,e in enumerate(self.marginal_ind):
+            d[e[0]][e[1]] = kl_vec[ind]
+            d[e[1]][e[0]] = kl_vec[ind]
+        return d
+    
     def stage_teams(self,edge_list,kl_info):
         """Pass a list of team-team indices that need to be staged"""
         n_teams = self.n_teams
@@ -223,7 +281,6 @@ class KLvertex():
                 self.mat_ind = ind
         self.is_instamix = insta
         if self.is_instamix:
-            self.info = 0
             self._info = 0
     @property 
     def info(self):
