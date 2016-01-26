@@ -21,11 +21,12 @@ def update_results(session_key,r):
     
     sc = conn.SessionConnection(session_key,r)
     sess = fit_session(sc)
-    strengths = dict(zip([id for id in teams],sess.strengths()))
+    strengths = dict(zip([t.id for t in sess.teams],sess.strengths()))
     
     # Communication to the outside world
     sc.set_strengths(strengths)
-    for id in games:
+    for g in sess.games:
+        id = g.id
         sc.set_game_property(id,'s_updated',1)
     
     #should return some percent done thing. (contained in sess)
@@ -39,24 +40,34 @@ def update_kl_info(session_key,r):
 
     sc = conn.SessionConnection(session_key,r)
     sess = fit_session(sc)
-
     # Might as well update results here too.  (premature optimization...)
+
+    strengths = dict(zip([t.id for t in sess.teams],sess.strengths()))
     sc.set_strengths(strengths)
-    for id in games:
+    for g in sess.games:
+        id =g.id
         sc.set_game_property(id,'s_updated',1)
 
     kl_vec = sess.kl_info_vec()
     sc.set_kl_vec(kl_vec,sess.marginal_ind)
-    for id in games:
-        sc.set_game_property(id,'s_updated',1)
+    for g in sess.games:
+        id = g.id
+        sc.set_game_property(id,'k_updated',1)
     err = 0
     return err
 
 def get_best_staging(session_key,r,round_num):
     sc = conn.SessionConnection(session_key,r)
-    kl_vec = sc.get_kl_vec()
-    
-    game_list =  sess.stage_round(round_num)
+    teams = sc.make_teams(sc.get_team_list())
+    sess = init_session(teams)
+    kl_vec_dict = sc.get_kl_vec(range(len(sess.marginal_ind)))
+    kl_vec = [v['weight'] for v in kl_vec_dict]
+
+    game_list =  sess.stage_round(round_num,sess.kl_info_dict(kl_vec))
+    sc.clear_stage_list()
+    for game in game_list:
+        sc.set_stage_game(game)
+
     err = 0
-    return game_list,err
+    return err
 

@@ -3,24 +3,32 @@ from tournament import Team, Game
 def read_list(list_string):
     return map(int,list_string)
 
-data_structure = {'s_ids':list,
-                  't_ids':list,
-                  'm_ids':list,
-                  's':{'t_ids':list,
-                       'game_ids':list,
-                       'game':{ 'team_1':int,
-                                'team_2':int,
-                                'score_1':int,
-                                'score_2':int,
-                                'round':int,
-                                's_updated':int,
-                                'kl_updated':int,
-                                'status':int}},
-                  'team':{'name':str,'members':list},
-                  'member':{'name':str,
-                            'city':str}}
+data_structure = {'s_ids':0,
+                  't_ids':0,
+                  'm_ids':[0,1,2],
+                  's':{'t_ids':[0,1],
+                       'game_ids':[0,1],
+                       'game':{ 'id':0,
+                                'team_1':0,
+                                'team_2':1,
+                                'score_1':-1,
+                                'score_2':-1,
+                                'round':0,
+                                's_updated':0,
+                                'kl_updated':0,
+                                'status':0}},
+                  'team':{'name':'none','members':[0,1,2]},
+                  'member':{'name':'me',
+                            'city':'timaru'}}
 
 game_properties = data_structure['s']['game'].keys()
+default_game = data_structure['s']['game']
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return float(s)
 
 class SessionConnection:
 
@@ -31,9 +39,19 @@ class SessionConnection:
     def team_list_key(self):
         return "".join([self.session_key,":t_ids:"])
 
-    def write_map(self,key,hmap):
-        for key,val in 
-        self.r_conn.hset
+    def write_map(self,key,dmap):
+        for id, value in dmap.iteritems():
+            self.r_conn.hset(key,id,str(value))
+
+    def read_map(self,key):
+        d = self.r_conn.hgetall(key)
+        for key,val in d.iteritems():
+            d[key] = num(val)
+        return d
+        
+    def new_game_id_key(self):
+        return "".join([self.session_key,":new_game_id"])
+
     def game_key(self,game_id):
         return "".join([self.session_key,":game:",str(game_id)])
         
@@ -46,9 +64,6 @@ class SessionConnection:
     def kl_key(self,ind):
         return "".join([self.session_key,":kl:",str(ind)])
     
-    def property_key(self,game_id,prop):
-        return "".join([self.game_key(game_id),':',prop])
-
     def get_team_list(self):
         return read_list(self.r_conn.lrange(self.team_list_key(),0,-1))
 
@@ -56,14 +71,10 @@ class SessionConnection:
         return read_list(self.r_conn.lrange(self.games_list_key(),0,-1))
 
     def get_game_property(self,id,prop):
-        return int(self.r_conn.get(self.property_key(id,prop)))
+        return num(self.r_conn.hget(self.game_key(id),prop))
     
-
     def get_game(self,game_id):
-        game = {'id':game_id}
-        for prop in game_properties:
-            game[prop]=self.get_game_property(game_id,prop)
-        return game
+        return self.read_map(self.game_key(game_id))
     
     def get_games(self):
         game_list = self.get_game_list()
@@ -72,36 +83,39 @@ class SessionConnection:
     
     def set_strengths(self,team_strengths):
         for team_id in team_strengths:
-            self.r_conn.set(self.strength_key(team_id),team_strengths[team_id])
+            self.r_conn.set(self.strength_key(team_id),
+                            team_strengths[team_id])
     
     def set_kl_edge(self,ind,t1,t2,val):
         key = self.kl_key(ind)
-        self.r_conn.hset(key,'t1',str(t1))
-        self.r_conn.hset(key,'t2',str(t2))
-        self.r_conn.hset(key,'val',str(val))
+        d = {'t1':t1,'t2':t2,'weight':val}
+        self.write_map(key,d)
 
-    def set_kl_vec(self,ind):
+    def set_kl_vec(self,kl_vec,team_inds):
         for ind,val in enumerate(kl_vec):
-            set_kl_edge(ind,team_inds[ind][0],team_inds[ind][1],val)
+            self.set_kl_edge(ind,team_inds[ind][0],team_inds[ind][1],val)
 
     def get_kl_edge(self,kl_vec,team_inds):
         key = self.kl_key(ind)
-        d = {}
-        d['t1'] = int(self.r_conn.hget(key,'t1'))
-        d['t2'] = int(self.r_conn.hget(key,'t2'))
-        d['val'] = float(self.r_conn.hget(key,'val'))
+        return self.read_map(key)
 
-    def get_kl_dict(self):
-        
-        
+    def get_kl_vec(self,kl_inds):
+        return [self.read_map(self.kl_key(ind)) for ind in kl_inds]
 
     def set_game_property(self,game_id,prop,val):
-        self.r_conn.set(self.property_key(game_id,prop),val)
+        self.r_conn.hset(self.game_key(game_id),prop,val)
 
+    def new_game_id(self):
+        key = self.new_game_id_key()
+        id = int(self.r_conn.get(key))
+        self.r_conn.incr(key)
+        return id
+        
     def set_game(self,game):
         id = game['id']
-        for prop in game:
-            self.set_game_property(id,prop,game[prop])
+        game_key = self.game_key(id)
+        for key,val in game.iteritems():
+            self.r_conn.hset(game_key,key,str(val))
     
     def make_teams(self,team_ids):
 
@@ -129,3 +143,22 @@ class SessionConnection:
             return g
         
         return [new_game(id) for id in games]
+
+    def stage_list_key(self):
+        return "".join([self.session_key,":stage_list"])
+
+    def clear_stage_list(self):
+        key =  self.stage_list_key()
+        self.r_conn.delete(key)
+
+    def set_stage_game(self,game):
+        id = self.new_game_id()
+        g = default_game
+        g['id'] = id
+        teams = [t.id for t in game.teams]
+        g['team_1'] = teams[0]
+        g['team_2'] = teams[1]
+        g['round'] = game.round
+        self.set_game(g)
+        self.r_conn.rpush(self.stage_list_key(),id)
+
