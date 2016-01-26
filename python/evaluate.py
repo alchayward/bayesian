@@ -49,7 +49,7 @@ def update_kl_info(session_key,r):
         sc.set_game_property(id,'s_updated',1)
 
     kl_vec = sess.kl_info_vec()
-    sc.set_kl_vec(kl_vec,sess.marginal_ind)
+    sc.set_kl_vec(kl_vec)
     for g in sess.games:
         id = g.id
         sc.set_game_property(id,'k_updated',1)
@@ -59,11 +59,13 @@ def update_kl_info(session_key,r):
 def get_best_staging(session_key,r,round_num):
     sc = conn.SessionConnection(session_key,r)
     teams = sc.make_teams(sc.get_team_list())
-    sess = init_session(teams)
-    kl_vec_dict = sc.get_kl_vec(range(len(sess.marginal_ind)))
-    kl_vec = [v['weight'] for v in kl_vec_dict]
+    n_teams = len(teams)
 
-    game_list =  sess.stage_round(round_num,sess.kl_info_dict(kl_vec))
+    sess = init_session(teams)
+
+    kl_vec = sc.get_kl_vec(range(n_teams*(n_teams-1)/2))
+
+    game_list =  sess.stage_round(round_num,kl_vec)
     sc.clear_stage_list()
     for game in game_list:
         sc.set_stage_game(game)

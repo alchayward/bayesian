@@ -38,9 +38,6 @@ def parmap(f, X, nprocs = multiprocessing.cpu_count()):
 
     return [x for i,x in sorted(res)]
 
-
-
-
 def log_2_pois_like(d,a,s1,s2): #taken out the max_score  limit for now
     dp = 1.0*np.arctan(d)
     return ( log(a)*(s1+s2)+dp*(s2-s1) -2*a*cosh(dp) -
@@ -83,8 +80,13 @@ class double_model():
     def strengths(self):
         strengths = self.mcmc.theta.stats()['mean']
         sd = {}
-        for key,val in self.team_dict.iteritems():
-            sd[key] = strengths[val]
+        for t in self.teams:
+            ind = self.team_dict.get(t.id)
+            if ind:
+                sd[t.id] = strengths[ind]
+            else:
+                sd[t.id] = 0
+
         return sd
         
     def get_data(self,games):
@@ -94,8 +96,8 @@ class double_model():
             if g.scores:
                 data_games.append(g)
         
-        teams = list(set([g.teams[0].id for g in sess.games] +
-                         [g.teams[1].id for g in sess.games]))
+        teams = list(set([g.teams[0].id for g in games] +
+                         [g.teams[1].id for g in games]))
         n_teams = len(teams)
 
         team_dict = dict(zip(teams,range(n_teams)))
@@ -105,15 +107,26 @@ class double_model():
         for ind,game in enumerate(data_games):
             score = [min(s,self.max_score) for s in game.scores]
             scores.append(game.scores)   
-            team_idx[ind,team_dict(game.teams[0].id)] = 1
-            team_idx[ind,team_dict(game.teams[1].id)] = -1
+            team_idx[ind,team_dict[game.teams[0].id]] = 1
+            team_idx[ind,team_dict[game.teams[1].id]] = -1
         
         self.team_dict = team_dict
-        return np.array(scores),np.array(team_idx),n_teams
+
+        m_mat = np.zeros([n_teams*(n_teams-1)/2,n_teams]) 
+        m_ind = []
+        count = 0
+        for ii in range(n_teams):
+            for jj in range(ii+1,n_teams):
+                m_mat[count,ii] = 1.0
+                m_mat[count,jj] = -1.0
+                m_ind.append([teams[ii],teams[jj]])
+                count=count+1
+        self.marginal_ind = m_ind
+        return np.array(scores),np.array(team_idx),m_mat,n_teams
 
     def make_model(self):
         
-        scores,team_idx,n_teams = self.get_data(self.games)
+        scores,team_idx,m_mat,n_teams = self.get_data(self.games)
 
         n_games = len(scores)
         prob_func = self.prob_func
@@ -145,7 +158,7 @@ class double_model():
             
         @pymc.deterministic()
         def marginal_delta(beta = theta):
-            return np.dot(self.marginal_mat,beta)
+            return np.dot(m_mat,beta)
         
         return pymc.Model(locals())
     
@@ -160,19 +173,6 @@ class double_model():
         self.mcmc.sample(self.mc_points,self.mc_burn ,self.mc_steps ,
              progress_bar=True)
     
-    @staticmethod    
-    def make_marginal_mat(n_teams):
-        mat = np.zeros([n_teams*(n_teams-1)/2,n_teams]) 
-        ind = []
-        count = 0
-        for ii in range(n_teams):
-            for jj in range(ii+1,n_teams):
-                mat[count,ii] = 1.0
-                mat[count,jj] = -1.0
-                ind.append([ii,jj])
-                count=count+1
-        return ind,mat
-
     def __init__(self):
         # Model Parameters
         #self.n_teams = n_teams
@@ -191,16 +191,20 @@ class double_model():
         self.mcmc=None
         
         #KL Info init
-        (ind, mat) = self.make_marginal_mat(self.n_teams)
-        self.marginal_ind = ind
-        self.marginal_mat = mat
 
     def kl_info_vec(self):
+        m = self.marginal_ind
+        n = len(m)
+        t_ids = [t.id for t in self.teams]
+        def f_fun(ii):
+            return m[ii][0] in t_ids and m[ii][1] in t_ids
+        inds = filter(f_fun,range(n))
         if self.mcmc == None:
             f = lambda x:0
         else:
             f = self.kl_func()
-        return parmap(f,range(len(self.marginal_ind)))
+        weights =  parmap(f,inds)
+        return [{'t1':m[ii][0],'t2':m[ii][1],'weight':weights[ii]} for ii in inds]
 
     def kl_info_dict(self,kl_vec):
         g={}
@@ -219,13 +223,25 @@ class double_model():
     
     def stage_teams(self,edge_list,kl_info):
         """Pass a list of team-team indices that need to be staged"""
+        f_list = [(e[0],e[1],{'weight':0}) for e in edge_list]
+
+        for d in kl_info: 
+            try:
+                ii=f_list.index([d['t1'],d['t2']])
+            except ValueError:
+                pass
+            else:
+                f_list[ii] = (d['t1'],d['t2'],{'weight':d['weight']})
+                
+            try:
+                ii=f_list.index([d['t2'],d['t1']])
+            except ValueError:
+                pass
+            else:
+                f_list[ii] = (d['t2'],d['t1'],{'weight':d['weight']})
+
         F= nx.Graph()
-        
-        F.add_edges_from( [(e[0],e[1], 
-            {'weight':kl_info[e[0]][e[1]]}) 
-            for e in edge_list])
-        count = 0
-        # when to put in instamix team?
+        F.add_edges_from(f_list)
         return nx.max_weight_matching(F)
 
 class Seeding(Session,double_model):
@@ -262,7 +278,7 @@ class Seeding(Session,double_model):
                 gg_list.append(g)
                 game = tournament.Game(
                     teams = [self.teams[g[0]],self.teams[g[1]]])
-                game.staged = True
+                game.staged = False
                 game.completed = False
                 game.round = round
                 game_list.append(game)

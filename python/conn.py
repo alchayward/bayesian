@@ -86,21 +86,21 @@ class SessionConnection:
             self.r_conn.set(self.strength_key(team_id),
                             team_strengths[team_id])
     
-    def set_kl_edge(self,ind,t1,t2,val):
+    def set_kl_edge(self,ind,val):
         key = self.kl_key(ind)
-        d = {'t1':t1,'t2':t2,'weight':val}
-        self.write_map(key,d)
+        self.write_map(key,val)
 
-    def set_kl_vec(self,kl_vec,team_inds):
+    def set_kl_vec(self,kl_vec):
         for ind,val in enumerate(kl_vec):
-            self.set_kl_edge(ind,team_inds[ind][0],team_inds[ind][1],val)
+            self.set_kl_edge(ind,val)
 
-    def get_kl_edge(self,kl_vec,team_inds):
+    def get_kl_edge(self,kl_vec,ind):
         key = self.kl_key(ind)
         return self.read_map(key)
 
     def get_kl_vec(self,kl_inds):
-        return [self.read_map(self.kl_key(ind)) for ind in kl_inds]
+        kl_vec =  [self.read_map(self.kl_key(ind)) for ind in kl_inds]
+        return filter(lambda x: x, kl_vec) 
 
     def set_game_property(self,game_id,prop,val):
         self.r_conn.hset(self.game_key(game_id),prop,val)
