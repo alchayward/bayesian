@@ -82,7 +82,7 @@ class double_model():
         sd = {}
         for t in self.teams:
             ind = self.team_dict.get(t.id)
-            if ind:
+            if not ind is None:
                 sd[t.id] = strengths[ind]
             else:
                 sd[t.id] = 0
