@@ -63,7 +63,7 @@ def update_kl_info(session,Games):
 
 def mc_game_to_dict(mc_game):
     return {'status':0,
-            'id':-1,
+            'id':mc_game.id,
             'team_1':mc_game.teams[0].id,
             'team_2':mc_game.teams[1].id,
             'score_1':None,
@@ -76,5 +76,16 @@ def get_best_staging(session,Games,kl_vec,r):
     games = session['games']
     sess.games = mcmc_games([Games[id] for id in games],
                                 teams)
+
     game_list =  sess.stage_round(r,kl_vec)
-    return map(mc_game_to_dict,game_list)
+    n = len(game_list)
+    g_ids = [g['id'] for g in Games]
+    ids = filter(
+            lambda i:i in g_ids,
+            range(n+max(g_ids)-len(set(g_ids))+1)[:n]
+    
+    for ind,g in enumerate(game_list):
+        g.id = ids[ind]
+
+    new_games = map(mc_game_to_dict,game_list)
+    return dict(zip([g['id'] for g in new_games],new_games)) 
