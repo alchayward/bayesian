@@ -17,10 +17,10 @@ def make_teams(team_ids):
 
 def mcmc_games(games,teams):
     
-    def new_game(id):
+    def new_game(game):
         g = Game()
         g.id = game['id']
-        g.teams = [game['team_1'],game['team_2']]
+        g.teams = [teams[game['team_1']],teams[game['team_2']]]
         if not game['status'] == 1:
             g.scores = None
         else:
@@ -55,20 +55,26 @@ def update_results(session,Games):
         #update a flag in 
     return sess.strengths()
 
-def update_kl_info(session):
+def update_kl_info(session,Games):
 
-    sess = fit_session(sc)
+    sess = fit_session(session,Games)
     kl_vec = sess.kl_info_vec()
     return kl_vec
 
+def mc_game_to_dict(mc_game):
+    return {'status':0,
+            'id':-1,
+            'team_1':mc_game.teams[0].id,
+            'team_2':mc_game.teams[1].id,
+            'score_1':None,
+            'score_2':None,
+            'round':mc_game.round}
+
 def get_best_staging(session,Games,kl_vec,r):
-    teams = sc.make_teams(sc.get_team_list())
-    n_teams = len(teams)
-
+    teams = make_teams(session['teams'])
     sess = init_session(teams)
-
-    sess.games = mcmc_games([games[id] for id in session['games']],
+    games = session['games']
+    sess.games = mcmc_games([Games[id] for id in games],
                                 teams)
     game_list =  sess.stage_round(r,kl_vec)
-    return game_list
-
+    return map(mc_game_to_dict,game_list)
