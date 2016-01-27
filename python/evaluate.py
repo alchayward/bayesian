@@ -15,19 +15,17 @@ def fit_session(sc):
     sess = init_session(teams)
     sess.games = sc.mcmc_games(games,teams)
     sess.fit_model()
+    sc.set_strengths(sess.strengths())
+    for g in sess.games:
+        id = g.id
+        sc.set_game_property(id,'s_updated',1)
     return sess
 
 def update_results(session_key,r):
     
     sc = conn.SessionConnection(session_key,r)
     sess = fit_session(sc)
-    strengths = dict(zip([t.id for t in sess.teams],sess.strengths()))
     
-    # Communication to the outside world
-    sc.set_strengths(strengths)
-    for g in sess.games:
-        id = g.id
-        sc.set_game_property(id,'s_updated',1)
     
     #should return some percent done thing. (contained in sess)
     err = 0
@@ -40,13 +38,6 @@ def update_kl_info(session_key,r):
 
     sc = conn.SessionConnection(session_key,r)
     sess = fit_session(sc)
-    # Might as well update results here too.  (premature optimization...)
-
-    strengths = dict(zip([t.id for t in sess.teams],sess.strengths()))
-    sc.set_strengths(strengths)
-    for g in sess.games:
-        id =g.id
-        sc.set_game_property(id,'s_updated',1)
 
     kl_vec = sess.kl_info_vec()
     sc.set_kl_vec(kl_vec)

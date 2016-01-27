@@ -1,6 +1,7 @@
-(defproject swiss "0.1.0-SNAPSHOT"
+(defproject swiss "0.2.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
+                 [com.taoensso/carmine "2.12.1"]
                  [reagent "0.5.1"]
                  [re-frame "0.6.0"]
                  [re-com "0.7.0"]
@@ -10,6 +11,7 @@
                  [com.cemerick/friend "0.2.1"]
                  [cljs-ajax "0.5.2"]
                  [metosin/compojure-api "0.24.3"]
+                 [com.cognitect/transit-cljs "0.8.237"]
                  [differ "0.2.1"]
                  [environ "1.0.1"]
                  [ring "1.4.0"]]
@@ -17,6 +19,10 @@
   :min-lein-version "2.5.3"
 
   :source-paths ["src/clj"]
+  
+  :main ^:skip-aot swiss.core
+
+  :profiles {:uberjar {:aot :all}} 
 
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-2"]

@@ -1,5 +1,5 @@
 (ns swiss.data.game
-  (:require [taoensso.carmine :as car :refer  (wcar)]
+  (:require [com.taoensso.carmine :as car :refer  (wcar)]
             ))
 
 

@@ -1,9 +1,18 @@
 (ns swiss.handler
   (:require [compojure.core :refer [GET defroutes]]
-            [ring.util.response :refer [file-response]]))
+            [ring.util.response :refer [file-response]]
+            [swiss.data :refer user-db]
+            [cognitect.transit :as t]
+            ))
+
+
+(def send-user-db []
+  (let [w (t/writer :json) ]
+    (t/write w @user-db)))
 
 (defroutes handler
-  (GET "/" [] (file-response "index.html" {:root "resources/public"})))
+  (GET "/" [] (file-response "index.html" {:root "resources/public"}))
+  (GET "/api/user-data" [] (file-response "index.html" {:root "resources/public"})))
 
 
 

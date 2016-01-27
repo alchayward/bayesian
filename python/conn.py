@@ -107,7 +107,12 @@ class SessionConnection:
 
     def new_game_id(self):
         key = self.new_game_id_key()
+        game_list = self.get_game_list()
+        n_games = len(game_list)
         id = int(self.r_conn.get(key))
+        if id < n_games:
+            id = n_games+1
+            self.r_conn.set(key, id)
         self.r_conn.incr(key)
         return id
         
