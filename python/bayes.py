@@ -24,7 +24,8 @@ def mcmc_games(games,teams):
         if not game['status'] == 1:
             g.scores = None
         else:
-            g.scores = [game['score_1'],game['score_2']]
+            g.scores = [game['scores']['team_1'],
+                        game['scores']['team_2']]
         g.round = game['round']
         return g
     
@@ -66,6 +67,7 @@ def mc_game_to_dict(mc_game):
             'id':mc_game.id,
             'team_1':mc_game.teams[0].id,
             'team_2':mc_game.teams[1].id,
+            'scoores':{mc_game.teams[0].id:0,mc_game.teams[1].id:0},
             'score_1':None,
             'score_2':None,
             'round':mc_game.round}
@@ -78,14 +80,8 @@ def get_best_staging(session,Games,kl_vec,r):
                                 teams)
 
     game_list =  sess.stage_round(r,kl_vec)
-    n = len(game_list)
-    g_ids = [g['id'] for g in Games]
-    ids = filter(
-            lambda i:i in g_ids,
-            range(n+max(g_ids)-len(set(g_ids))+1)[:n]
-    
     for ind,g in enumerate(game_list):
-        g.id = ids[ind]
+        g.id = ind
 
     new_games = map(mc_game_to_dict,game_list)
     return dict(zip([g['id'] for g in new_games],new_games)) 
