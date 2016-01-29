@@ -8,12 +8,13 @@ app = FlaskAPI(__name__)
 
 class DB(object): # make sure you inherit from object
 
-    def __init__():
-
+    def __init__(self,data):
+        self._data = data
     @property
     def data(self):
-        return 4
-    def set
+        return self._data
+    def set_DB(self,data):
+        self._data = data
 
 p = Test()
 p.x # returns 4
@@ -37,11 +38,10 @@ q = Queue(connection=redis.Redis())
 def do_job(f,argss):
 
     job = q.enqueue_call(func=f, args=argss, timeout=wait_time)
-    @propery
-    DB = lambda : job.result or DB
+    return job.result
 
 
-
+def update_DB
 
 def team_ranking_text(session,team):
 pass
