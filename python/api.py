@@ -127,4 +127,3 @@ def notes_detail(key,r):
     return stage_update_status_req(key)
 if __name__ == "__main__":
     app.run(debug=False)
-
