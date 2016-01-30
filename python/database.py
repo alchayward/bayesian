@@ -1,6 +1,7 @@
 import csv
 import os
-def DB_init()
+import cvs
+def DB_init():
     DB = {}
     pwd = os.getcwd()
     team_file = "".join([pwd,'/teams.csv'])
