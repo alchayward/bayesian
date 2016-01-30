@@ -14,7 +14,7 @@ def add_game(db,session_id,game):
     return db
 
 def update_strengths(db,session_id):
-    sess = db['Sessions'][id]
+    sess = db['Sessions'][session_id]
     str_dict = bayes.update_results(Sessions[1],Games)
     for k,v in str_dict:
         sess['strengths'][k] = v
