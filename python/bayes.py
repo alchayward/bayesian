@@ -20,12 +20,14 @@ def mcmc_games(games,teams):
     def new_game(game):
         g = Game()
         g.id = game['id']
-        g.teams = [teams[game['team_1']],teams[game['team_2']]]
+        t1 = game['team_1']
+        t2 = game['team_2']
+        g.teams = [teams[t1],teams[t2]]
         if not game['status'] == 1:
             g.scores = None
         else:
-            g.scores = [game['scores']['team_1'],
-                        game['scores']['team_2']]
+            g.scores = [game['scores'][t1],
+                        game['scores'][t2]]
         g.round = game['round']
         return g
     
