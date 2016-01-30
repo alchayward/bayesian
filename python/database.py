@@ -1,6 +1,6 @@
 import csv
 import os
-import cvs
+import csv
 def DB_init():
     DB = {}
     pwd = os.getcwd()
