@@ -30,7 +30,7 @@ def update_score(db,game_id,score_dict):
 def new_game(team_1,team_2,round):
     return {'team_1':team_1,'team_2':team_2,
             'round':round,'scores':{team_1:0,team_2:0},
-            'status':0}
+            'status':0,'id':-1}
 
 def get_suggested_games(db,session_id,round):
     kl = bayes.update_kl_info(db['Sessions'][1],db['Games'])
