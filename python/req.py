@@ -45,3 +45,9 @@ def add_suggested_games(db,session_id):
         add_game(db,session_id,g)
 
     return db
+
+def remove_game(db,session_id,game_id):
+    games = db['Sessions'][session_id]['games']
+    games = filter(lambda x:not x == game_id,games)
+    db['Sessions'][session_id]['games'] = games
+    return db
