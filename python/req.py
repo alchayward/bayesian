@@ -33,8 +33,8 @@ def new_game(team_1,team_2,round):
             'status':0}
 
 def get_suggested_games(db,session_id,round):
-    kl = bayes.update_kl_info(db['Sessions'][1],DB['Games'])
-    games = bayes.get_best_staging(db['Sessions'][1],DB['Games'],kl,round)
+    kl = bayes.update_kl_info(db['Sessions'][1],db['Games'])
+    games = bayes.get_best_staging(db['Sessions'][1],db['Games'],kl,round)
     db['Sessions'][session_id]['suggestedGames'] = games
     return db
 
