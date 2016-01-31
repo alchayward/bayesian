@@ -2,13 +2,15 @@ import bayes
 
 def add_game(db,session_id,game):
     #check id
-    
+    games =  db['Sessions'][session_id]['games']
     g_ids = [g['id'] for g in db['Games'].values()]
     if game['id'] in g_ids:
         game['id'] = max(g_ids) + 1
 
-    db['Sessions'][session_id]['games'].append(game['id'])
+    games.append(game['id'])
+    games = list(set(games))
     db['Games'][game['id']] = game
+
     return db
 
 def update_strengths(db,session_id):
