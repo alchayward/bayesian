@@ -258,7 +258,7 @@ class Seeding(Session,double_model):
     def get_teams_to_seed(self,round):
         neg_list = []   
         for g in self.games:
-            if 1 == 1:
+            if g.round >= round:
                 neg_list.append([t.id for t in g.teams])
         edge_list = []
         for ii in range(self.n_teams):
