@@ -185,8 +185,8 @@ class double_model():
         self.scale = 2.0
         
         # MC parameters
-        self.mc_points = 1000
-        self.mc_burn = 100
+        self.mc_points = 100000
+        self.mc_burn = 10000
         self.mc_steps = 4
         self.mcmc=None
         
