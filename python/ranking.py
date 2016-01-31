@@ -259,7 +259,7 @@ class Seeding(Session,double_model):
         ids = [t.id for t in self.teams]
         neg_list = []   
         for g in self.games:
-            if g.round == round:
+            if g.round <= round:
                 neg_list.append([t.id for t in g.teams])
         edge_list = []
         print(neg_list)
