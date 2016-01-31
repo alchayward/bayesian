@@ -7,8 +7,7 @@ def add_game(db,session_id,game):
     if game['id'] in g_ids:
         game['id'] = max(g_ids) + 1
 
-    db['Sessions'][session_id]['games'].append(game['id'])
-    db['Games'][game['id']] = game
+    db['Sessions'][session_id]['games'].add(game['id'])
     return db
 
 def update_strengths(db,session_id):
@@ -48,6 +47,5 @@ def add_suggested_games(db,session_id):
 
 def remove_game(db,session_id,game_id):
     games = db['Sessions'][session_id]['games']
-    games = filter(lambda x:not x == game_id,games)
-    db['Sessions'][session_id]['games'] = games
+    games.remove(game_id)
     return db
