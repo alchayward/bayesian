@@ -262,6 +262,7 @@ class Seeding(Session,double_model):
             if g.round == round:
                 neg_list.append([t.id for t in g.teams])
         edge_list = []
+        print(neg_list)
         for ii in ids:
             for jj in filter(lambda x:x==ii,ids):
                 if not  any([ [ii,jj] in neg_list, [jj,ii] in neg_list]):
