@@ -256,7 +256,14 @@ class Seeding(Session,double_model):
         #self.current_round = tournament.Round(1)
 
     def get_teams_to_seed(self,round):
-        ids = [t.id for t in self.teams]
+        rgames = filter(lambda g:g.round == round,self.games)
+        rteams = [[t.id for t in g.teams] for g in rgames]
+        nt_list = []
+        for sublist in rteams:
+            for val in sublist:
+                nt_list.append(val)
+
+        ids = [t.id for t in self.teams if t.id not in nt_list]
         neg_list = []   
         for g in self.games:
             if g.round <= round:
