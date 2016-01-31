@@ -25,7 +25,7 @@ def update_score(db,game_id,s1,s2):
     g = db['Games'][game_id]
     t1 = g['team_1']
     t2 = g['team_2']
-    score_dict = {t1:s2,t2:s1}
+    score_dict = {t1:s1,t2:s2}
     db['Games'][game_id]['scores']=score_dict
     db['Games'][game_id]['status']=1
     
