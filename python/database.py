@@ -55,7 +55,7 @@ def DB_init():
                     5:f_day_1am,6:f_day_1pm,7:f_day_2am,8:f_day_2pm,
                     9:f_day_3groups,10:f_day_3knockout}
         for v in sessions.values():
-            v['games'] = set([])
+            v['games'] = []
             v['suggestedGames'] = []
             v['strengths'] = {}
             for id in v['teams']:
