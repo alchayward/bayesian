@@ -264,7 +264,7 @@ class Seeding(Session,double_model):
         edge_list = []
         print(neg_list)
         for ii in ids:
-            for jj in filter(lambda x:x==ii,ids):
+            for jj in filter(lambda x: not x==ii,ids):
                 if not  any([ [ii,jj] in neg_list, [jj,ii] in neg_list]):
                     edge_list.append([ii,jj])
         return edge_list
