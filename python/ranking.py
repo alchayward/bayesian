@@ -263,7 +263,7 @@ class Seeding(Session,double_model):
             for val in sublist:
                 nt_list.append(val)
 
-        ids = [t.id for t in self.teams if t.id not in nt_list]
+        ids = [t.id for t in self.teams.values() if t.id not in nt_list]
         neg_list = []   
         for g in self.games:
             if g.round <= round:
