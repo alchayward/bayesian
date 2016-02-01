@@ -195,7 +195,7 @@ class double_model():
     def kl_info_vec(self):
         m = self.marginal_ind
         n = len(m)
-        t_ids = [t.id for t in self.teams]
+        t_ids = [t.id for t in self.teams.values()]
         def f_fun(ii):
             return m[ii][0] in t_ids and m[ii][1] in t_ids
         inds = filter(f_fun,range(n))
