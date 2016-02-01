@@ -23,9 +23,9 @@ def mcmc_games(games,teams):
         tt1 =  ga['team_1']
         tt2 =  ga['team_2']
         if tt1 in team_ids:
-            other_ids.append(ga['team_1']
+            other_ids.append(ga['team_1'])
         if tt2 in team_ids:
-            other_ids.append(ga['team_2']
+            other_ids.append(ga['team_2'])
 
     other_teams = make_teams(other_ids)
     teams = teams + other_teams
