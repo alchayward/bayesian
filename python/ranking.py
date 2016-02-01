@@ -203,7 +203,8 @@ class double_model():
             f = lambda x:0
         else:
             f = self.kl_func()
-        weights =  parmap(f,inds)
+        weights_m =  parmap(f,inds)
+        weights = {inds[ii]:weights_m[ii] for ii in range(len(inds))}
         print(inds)
         return [{'t1':m[ii][0],'t2':m[ii][1],'weight':weights[ii]} for ii in inds]
 
