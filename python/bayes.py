@@ -17,6 +17,17 @@ def make_teams(team_ids):
 
 def mcmc_games(games,teams):
     
+    team_ids = [t.id for t in teams]
+    other_ids = []
+    for g in games:
+        if g['team_1'] in team_ids:
+            other_ids.append(g['team_1']
+
+        if g['team_2'] in team_ids:
+            other_ids.append(g['team_2']
+
+    other_teams = make_teams(other_ids)
+    teams = teams + other_teams
     def new_game(game):
         g = Game()
         g.id = game['id']
