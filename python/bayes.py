@@ -30,6 +30,7 @@ def mcmc_games(games,teams):
     other_teams = make_teams(other_ids)
     for k,v in other_teams.iteritems():
         teams[k] = v
+    print(teams)
     def new_game(game):
         g = Game()
         g.id = game['id']
