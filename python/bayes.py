@@ -12,7 +12,7 @@ def make_teams(team_ids):
         t.session_id = ind
         return t
     
-    return [new_team(ind,id) for ind,id in enumerate(team_ids)]
+    return {id:new_team(ind,id) for ind,id in enumerate(team_ids)}
 
 
 def mcmc_games(games,teams):
