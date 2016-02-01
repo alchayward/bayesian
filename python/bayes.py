@@ -19,25 +19,29 @@ def mcmc_games(games,teams):
     
     team_ids = [t.id for t in teams.values()]
     other_ids = []
-    print(games)
     for ga in games:
         tt1 =  ga['team_1']
         tt2 =  ga['team_2']
-        if tt1 in team_ids:
+        if not tt1 in team_ids:
             other_ids.append(ga['team_1'])
-        if tt2 in team_ids:
+        if not tt2 in team_ids:
             other_ids.append(ga['team_2'])
-
+    print(other_ids)
     other_teams = make_teams(other_ids)
+    all_teams = {}
+
     for k,v in other_teams.iteritems():
-        teams[k] = v
-    print(teams)
+        all_teams[k] = v
+
+    for k,v in teams.iteritems():
+        all_teams[k] = v
+    print(team_ids)
     def new_game(game):
         g = Game()
         g.id = game['id']
         t1 = game['team_1']
         t2 = game['team_2']
-        g.teams = [teams[t1],teams[t2]]
+        g.teams = [all_teams[t1],all_teams[t2]]
         if not game['status'] == 1:
             g.scores = None
         else:

@@ -185,9 +185,9 @@ class double_model():
         self.scale = 2.0
         
         # MC parameters
-        self.mc_points = 100000
-        self.mc_burn = 10000
-        self.mc_steps = 4
+        self.mc_points = 100
+        self.mc_burn = 10
+        self.mc_steps = 1
         self.mcmc=None
         
         #KL Info init
@@ -197,13 +197,14 @@ class double_model():
         n = len(m)
         t_ids = [t.id for t in self.teams.values()]
         def f_fun(ii):
-            return m[ii][0] in t_ids and m[ii][1] in t_ids
+            return (m[ii][0] in t_ids) and (m[ii][1] in t_ids)
         inds = filter(f_fun,range(n))
         if self.mcmc == None:
             f = lambda x:0
         else:
             f = self.kl_func()
         weights =  parmap(f,inds)
+        print(inds)
         return [{'t1':m[ii][0],'t2':m[ii][1],'weight':weights[ii]} for ii in inds]
 
     def kl_info_dict(self,kl_vec):
