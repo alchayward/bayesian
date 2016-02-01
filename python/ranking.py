@@ -80,7 +80,7 @@ class double_model():
     def strengths(self):
         strengths = self.mcmc.theta.stats()['mean']
         sd = {}
-        for t in self.teams:
+        for t in self.teams.values():
             ind = self.team_dict.get(t.id)
             if not ind is None:
                 sd[t.id] = strengths[ind]
