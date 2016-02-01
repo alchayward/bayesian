@@ -20,10 +20,10 @@ def mcmc_games(games,teams):
     team_ids = [t.id for t in teams]
     other_ids = []
     for ga in games:
-        if ga in team_ids:
+        if ga['team_1'] in team_ids:
             other_ids.append(ga['team_1']
 
-        if any([ga['team_2'] == ii for ii  in team_ids):
+        if ga['team_2']in team_ids:
             other_ids.append(ga['team_2']
 
     other_teams = make_teams(other_ids)
