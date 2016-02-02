@@ -39,7 +39,7 @@ def parmap(f, X, nprocs = multiprocessing.cpu_count()):
     return [x for i,x in sorted(res)]
 
 def log_2_pois_like(d,a,s1,s2): #taken out the max_score  limit for now
-    dp = 1.0*np.arctan(d)
+    dp = 1.5*np.arctan(d)
     return ( log(a)*(s1+s2)+dp*(s2-s1) -2*a*cosh(dp) -
              gammaln(s1+1) - gammaln(s2+1) )
 
