@@ -229,14 +229,14 @@ class double_model():
 
         for d in kl_info: 
             try:
-                ii=f_list.index([d['t1'],d['t2']])
+                ii=f_list.index((d['t1'],d['t2'],{'weight':0}))
             except ValueError:
                 pass
             else:
                 f_list[ii] = (d['t1'],d['t2'],{'weight':d['weight']})
                 
             try:
-                ii=f_list.index([d['t2'],d['t1']])
+                ii=f_list.index((d['t2'],d['t1'],{'weight':0}))
             except ValueError:
                 pass
             else:
@@ -245,6 +245,9 @@ class double_model():
         F= nx.Graph()
         F.add_edges_from(f_list)
         return nx.max_weight_matching(F)
+
+
+
 
 class Seeding(Session,double_model):
     """Adaptive style seeding section"""
