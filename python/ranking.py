@@ -243,6 +243,7 @@ class double_model():
                 f_list[ii] = (d['t2'],d['t1'],{'weight':d['weight']})
 
         F= nx.Graph()
+        print(f_list)
         F.add_edges_from(f_list)
         return nx.max_weight_matching(F)
 
