@@ -6,7 +6,7 @@ app = FlaskAPI(__name__)
 
 
 
-class DB(object): # make sure you inherit from object
+class DB(object):
 
     def __init__(self,data):
         self._data = data
@@ -16,15 +16,8 @@ class DB(object): # make sure you inherit from object
     def set_DB(self,data):
         self._data = data
 
-p = Test()
-p.x # returns 4
-
 def init_DB():
-DB = {}
-pwd = os.getcwd()
-team_file = "".join([pwd,'/teams.csv'])
-
-    with open(
+    pass
 
 
 DB = init_DB()
@@ -34,6 +27,22 @@ redis_port = '6379'#os.environ['REDIS_PORT']
 wait_time = 1#os.environ['WAIT_TIME']
 r = redis.StrictRedis(host=redis_host, port=redis_port, db=0)
 q = Queue(connection=redis.Redis())
+
+
+# define api:
+#    tournament
+#       session
+#           add, remove, stage next games, get ranking
+#           teams
+#               add, get
+#               team_id
+#            games
+#               add game
+#               game
+#                   score, teams
+#
+
+
 
 def do_job(f,argss):
 

@@ -69,12 +69,12 @@ class double_model():
             
             Epr = np.array([[expect( lambda x: exp(f(x,a,s1,s2)))
                  for s1 in scores] for s2 in scores])
-            Elogpr = np.array([[expect( lambda x: f(x,a,s1,s2) )
-                 for s1 in scores] for s2 in scores])
+            # Elogpr = np.array([[expect( lambda x: f(x,a,s1,s2) )
+            #     for s1 in scores] for s2 in scores])
             Eprlogpr = np.array( [[expect(lambda x: exp(f(x,a,s1,s2))*f(x,a,s1,s2)) 
                  for s1 in scores ] for s2 in scores])
         
-            return np.sum(Eprlogpr)-np.sum(Epr*Elogpr)
+            return np.sum(Eprlogpr)-np.sum(Epr*np.log(Epr))
         return kl  
 
     def strengths(self):
