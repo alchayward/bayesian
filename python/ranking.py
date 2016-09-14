@@ -212,6 +212,7 @@ class double_model():
     def kl_info_dict(self,kl_vec):
         g = {}
         n = self.n_teams
+
         def inner_dict(ii):
            ts = filter(lambda x:not x == ii,range(n))
            return dict(zip(ts, 
@@ -224,7 +225,8 @@ class double_model():
             d[e[1]][e[0]] = kl_vec[ind]
         return d
     
-    def stage_teams(self,edge_list,kl_info):
+    @staticmethod
+    def stage_teams(edge_list, kl_info):
         """Pass a list of team-team indices that need to be staged"""
         f_list = [(e[0],e[1],{'weight':0}) for e in edge_list]
 
@@ -243,15 +245,13 @@ class double_model():
             else:
                 f_list[ii] = (d['t2'],d['t1'],{'weight':d['weight']})
 
-        F= nx.Graph()
+        F = nx.Graph()
         print(f_list)
         F.add_edges_from(f_list)
         return nx.max_weight_matching(F)
 
 
-
-
-class Seeding(Session,double_model):
+class Seeding(Session, double_model):
     """Adaptive style seeding section"""
 
     def __init__(self,teams): 
