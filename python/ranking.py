@@ -154,11 +154,11 @@ class double_model():
         @pymc.stochastic(observed=True)
         def games_played(value=scores ,sp=scale,alpha = theta):
             return sum(prob_func(dot(team_idx, alpha), sp,
-                 value[:,0], value[:,1]))
+                                 value[:,0], value[:,1]))
             
         @pymc.deterministic()
-        def marginal_delta(beta = theta):
-            return np.dot(m_mat,beta)
+        def marginal_delta(beta=theta):
+            return np.dot(m_mat, beta)
         
         return pymc.Model(locals())
     
@@ -170,14 +170,14 @@ class double_model():
         self.mcmc = pymc.MCMC(m)
         self.mcmc.use_step_method(pymc.AdaptiveMetropolis, self.mcmc.theta_i)
         print('running MCMC')
-        self.mcmc.sample(self.mc_points,self.mc_burn ,self.mc_steps ,
-             progress_bar=True)
+        self.mcmc.sample(self.mc_points, self.mc_burn, self.mc_steps,
+                         progress_bar=True)
     
     def __init__(self):
         # Model Parameters
-        #self.n_teams = n_teams
+        # self.n_teams = n_teams
         n_teams = self.n_teams
-        #self.inital_theta = rand(self.n_teams)*0.0*3.0-1.5
+        # self.inital_theta = rand(self.n_teams)*0.0*3.0-1.5
         self.inital_theta = rand(self.n_teams)*0.00001
         self.prob_func = log_2_pois_like
 
@@ -188,19 +188,20 @@ class double_model():
         self.mc_points = 100000
         self.mc_burn = 10000
         self.mc_steps = 4
-        self.mcmc=None
+        self.mcmc = None
         
-        #KL Info init
-
+        # KL Info init
     def kl_info_vec(self):
         m = self.marginal_ind
         n = len(m)
         t_ids = [t.id for t in self.teams.values()]
+
         def f_fun(ii):
             return (m[ii][0] in t_ids) and (m[ii][1] in t_ids)
+
         inds = filter(f_fun,range(n))
-        if self.mcmc == None:
-            f = lambda x:0
+        if self.mcmc is None:
+            f = lambda x: 0
         else:
             f = self.kl_func()
         weights_m =  parmap(f,inds)
@@ -209,8 +210,8 @@ class double_model():
         return [{'t1':m[ii][0],'t2':m[ii][1],'weight':weights[ii]} for ii in inds]
 
     def kl_info_dict(self,kl_vec):
-        g={}
-        n= self.n_teams
+        g = {}
+        n = self.n_teams
         def inner_dict(ii):
            ts = filter(lambda x:not x == ii,range(n))
            return dict(zip(ts, 
