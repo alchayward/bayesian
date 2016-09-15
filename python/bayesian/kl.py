@@ -31,7 +31,7 @@ def generate_samples(x, draw_fn, n_samples=1):
 
 
 def expectation(trace, entropy_fn):
-    return sum(entropy_fn(trace))/(np.shape(trace)[0])
+    return np.sum(entropy_fn(trace))/np.shape(trace)[1]
 
 
 def kl_info(trace, draw_fn, entropy_fn, team_idx, param_idx):
@@ -57,9 +57,13 @@ def arctan_rate_fn(x):
             x[2]*np.exp(x[3]*np.arctan(x[1]-x[0]))])
 
 
-def draw_from_possion(x, rate_fn):
+def draw_from_poisson(x, rate_fn):
     return poisson(rate_fn(x))
 
 
-def possion_entropy_fn(rate_fn):
-    pass
+def poisson_entropy(l):
+    return (1-np.exp(-np.pi*l**2))*1.61*np.power(np.log(1+l),0.532)\
+           + np.exp(-np.pi*l**2)*(l*np.log(np.e/l))
+
+def poisson_entropy_fn(x,rate_fn):
+    rate_fn(x)
