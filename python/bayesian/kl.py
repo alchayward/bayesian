@@ -14,9 +14,11 @@ def shannon_entropy(prb_dist):
 
 
 def bin_samples(sample):
-    bins = np.amax(sample, axis=0)  # number of bins in each dim
+    bins = np.array(map(lambda x: np.arange(-0.5, x+1.5, 1),
+                        np.amax(sample, axis=1)))
     # noinspection PyCallByClass
-    return np.ndarray.flatten(np.histogramdd(sample, bins=bins, normed=True))
+    hist, _ ,_ = np.histogram2d(sample[0],sample[1], bins=bins, normed=True)
+    return np.ndarray.flatten(hist)
 
 
 def generate_samples(x, draw_fn, n_samples=1):
@@ -24,7 +26,7 @@ def generate_samples(x, draw_fn, n_samples=1):
     """draw samples from a distribution from each instance of x
         each row of x should contain the paramters of f_draw
         each sample should be an object comparable by == """
-    return np.ndarray(sum([draw_fn(x) for i in range(n_samples)]))
+    return np.concatenate([draw_fn(x) for i in range(n_samples)], axis=1)
     # Gotta check that f_draw will be changing each time I hit it.
 
 
@@ -51,13 +53,13 @@ def kl_info(trace, draw_fn, entropy_fn, team_idx, param_idx):
 # Poission stuff
 
 def arctan_rate_fn(x):
-    return [x[2]*np.exp(x[3]*np.arctan(x[0]-x[1])),
-            x[2]*np.exp(x[3]*np.arctan(x[1]-x[0]))]
+    return np.array([x[2]*np.exp(x[3]*np.arctan(x[0]-x[1])),
+            x[2]*np.exp(x[3]*np.arctan(x[1]-x[0]))])
 
 
 def draw_from_possion(x, rate_fn):
-    return np.transpose( np.array(map(poisson, rate_fn(x))))
+    return poisson(rate_fn(x))
 
 
 def possion_entropy_fn(rate_fn):
-
+    pass
