@@ -27,15 +27,21 @@ def generate_samples(x, f_draw, n_samples=1):
     # Gotta check that f_draw will be changing each time I hit it.
 
 
-def draw_from_possion(x, rate_fn):
-    return np.ndarray(map(np.random.poisson, rate_fn(x)))
-
-
 def kl_info(trace, f_draw, team_idx, param_idx):
+    """returns the (reduced) kl infomation for a pair of teams needed for staging estimation
+    for teams indexed by team_idx = [idx1, idx2], trace[idx1][:]
+    should return the strength parameters for team 1 etc. and trace[param][:] the
+    function paramters for each sample of P(theta)
+
+    f_draw takes ndarray([theta1, theta2, param1, param2,etc]) and returns ndarray([score1, score2])
+    """
     idx = team_idx + param_idx
     return shannon_entropy(
             bin_samples(
               generate_samples(
                 trace[idx][:], f_draw)))
 
+
+def draw_from_possion(x, rate_fn):
+    return np.ndarray(map(np.random.poisson, rate_fn(x)))
 
