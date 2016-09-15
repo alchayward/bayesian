@@ -28,7 +28,11 @@ def generate_samples(x, f_draw, n_samples=1):
     # Gotta check that f_draw will be changing each time I hit it.
 
 
-def kl_info(trace, f_draw, team_idx, param_idx):
+def expectation(trace, entropy_fn):
+    return sum(entropy_fn(trace))/len(trace)
+
+
+def kl_info(trace, draw_fn, entropy_fn, team_idx, param_idx):
     """returns the (reduced) kl infomation for a pair of teams needed for staging estimation
     for teams indexed by team_idx = [idx1, idx2], trace[idx1][:]
     should return the strength parameters for team 1 etc. and trace[param][:] the
@@ -37,10 +41,12 @@ def kl_info(trace, f_draw, team_idx, param_idx):
     f_draw takes ndarray([theta1, theta2, param1, param2,etc]) and returns ndarray([score1, score2])
     """
     idx = team_idx + param_idx
+
     return shannon_entropy(
-        bin_samples(
-            generate_samples(
-                trace[idx][:], f_draw)))
+             bin_samples(
+               generate_samples(
+                trace[idx][:], draw_fn))) + expectation(trace[idx][:], entropy_fn)
+
 
 
 def draw_from_possion(x, rate_fn):
