@@ -9,16 +9,17 @@ def shannon_entropy(prb_dist):
         H = sum(p log(p))
         prb_dist is a one dimensional numpy array of probabilities.
     """
-    x = prb_dist[ prb_dist > 0.0] #filter out zero values
+    x = prb_dist[ prb_dist > 0.0]  # filter out zero values
     return -np.sum(x*np.log(x))
 
 
 def bin_samples(sample):
-    bins = [max(x) for x in sample] #number of bins in each dim
+    bins = [max(x) for x in sample]  #number of bins in each dim
     return np.ndarray.flatten(np.histogramdd(sample, bins=bins, normed=True))
 
 
 def generate_samples(x, f_draw, n_samples=1):
+    # type: (np.ndarray, (np.ndarray -> np.ndarray, int) -> np.ndarray
     """draw samples from a distribution from each instance of x
         each row of x should contain the paramters of f_draw
         each sample should be an object comparable by == """
@@ -27,12 +28,14 @@ def generate_samples(x, f_draw, n_samples=1):
 
 
 def draw_from_possion(x, rate_fn):
-    return np.ndarray(map(np.random.poisson,rate_fn(x)))
+    return np.ndarray(map(np.random.poisson, rate_fn(x)))
 
 
-def kl_info(trace, f_draw, team_inds, param_inds):
-    inds = team_inds + param_inds
+def kl_info(trace, f_draw, team_idx, param_idx):
+    idx = team_idx + param_idx
     return shannon_entropy(
             bin_samples(
-                generate_samples(
-                    trace[inds][:],f_draw))))
+              generate_samples(
+                trace[idx][:], f_draw)))
+
+
