@@ -14,7 +14,7 @@ def shannon_entropy(prb_dist):
 
 
 def bin_samples(sample):
-    bins = [max(x) for x in sample]  #number of bins in each dim
+    bins = np.amax(sample, axis=0)  #number of bins in each dim
     return np.ndarray.flatten(np.histogramdd(sample, bins=bins, normed=True))
 
 
