@@ -15,6 +15,7 @@ def shannon_entropy(prb_dist):
 
 def bin_samples(sample):
     bins = np.amax(sample, axis=0)  # number of bins in each dim
+    # noinspection PyCallByClass
     return np.ndarray.flatten(np.histogramdd(sample, bins=bins, normed=True))
 
 
@@ -43,5 +44,5 @@ def kl_info(trace, f_draw, team_idx, param_idx):
 
 
 def draw_from_possion(x, rate_fn):
-    return np.ndarray(map(np.random.poisson, rate_fn(x)))
+    return np.ndarray(map(poisson, rate_fn(x)))
 
