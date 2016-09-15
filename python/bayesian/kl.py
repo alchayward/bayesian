@@ -19,17 +19,17 @@ def bin_samples(sample):
     return np.ndarray.flatten(np.histogramdd(sample, bins=bins, normed=True))
 
 
-def generate_samples(x, f_draw, n_samples=1):
+def generate_samples(x, draw_fn, n_samples=1):
     # type: (np.ndarray, (np.ndarray -> np.ndarray, int) -> np.ndarray
     """draw samples from a distribution from each instance of x
         each row of x should contain the paramters of f_draw
         each sample should be an object comparable by == """
-    return np.ndarray(sum([map(f_draw, x) for i in range(n_samples)]))
+    return np.ndarray(sum([draw_fn(x) for i in range(n_samples)]))
     # Gotta check that f_draw will be changing each time I hit it.
 
 
 def expectation(trace, entropy_fn):
-    return sum(entropy_fn(trace))/len(trace)
+    return sum(entropy_fn(trace))/(np.shape(trace)[0])
 
 
 def kl_info(trace, draw_fn, entropy_fn, team_idx, param_idx):
@@ -41,14 +41,23 @@ def kl_info(trace, draw_fn, entropy_fn, team_idx, param_idx):
     f_draw takes ndarray([theta1, theta2, param1, param2,etc]) and returns ndarray([score1, score2])
     """
     idx = team_idx + param_idx
-
     return shannon_entropy(
              bin_samples(
                generate_samples(
-                trace[idx][:], draw_fn))) + expectation(trace[idx][:], entropy_fn)
+                trace[idx][:], draw_fn)))\
+           + expectation(trace[idx][:], entropy_fn)
 
+
+# Poission stuff
+
+def arctan_rate_fn(x):
+    return [x[2]*np.exp(x[3]*np.arctan(x[0]-x[1])),
+            x[2]*np.exp(x[3]*np.arctan(x[1]-x[0]))]
 
 
 def draw_from_possion(x, rate_fn):
-    return np.ndarray(map(poisson, rate_fn(x)))
+    return np.transpose( np.array(map(poisson, rate_fn(x))))
+
+
+def possion_entropy_fn(rate_fn):
 
