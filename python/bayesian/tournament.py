@@ -1,13 +1,15 @@
 class Game:
 
-    def __init__(self, teams, scores=[None, None], game_id=None):
+    def __init__(self, teams, scores=None, game_id=None):
         self.id = game_id
         self.teams = teams
-        self.scores = {zip(teams, scores)}
-        if not all(self.scores):
+
+        if not scores:
             self.completed = False
+            self.scores = {zip(teams,[None, None])}
         else:
             self.completed = True
+            self.scores = scores
 
 
 def new_game(team_1, team_2):
