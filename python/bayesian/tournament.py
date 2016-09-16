@@ -9,11 +9,43 @@ class Game:
         self.teams = teams
 
         if not scores:
-            self.completed = False
-            self.scores = {zip(teams, [None, None])}
+            self.scores = dict(zip(teams, [None, None]))
         else:
-            self.completed = True
             self.scores = scores
+
+    @property
+    def completed(self):
+        return all(self.scores.values())
+
+    @property
+    def winner(self):  # not sure what to put here in case of draw
+        if self.completed:
+            if self.scores[self.teams[0]] > self.scores[self.teams[1]]:
+                return self.teams[0]
+            else:
+                return self.teams[1]
+        else:
+            return None
+
+    @property
+    def loser(self):  # not sure what to put here in case of draw
+        if self.completed:
+            if self.scores[self.teams[0]] > self.scores[self.teams[1]]:
+                return self.teams[1]
+            else:
+                return self.teams[0]
+        else:
+            return None
+
+    @property
+    def is_draw(self):
+        if self.completed:
+            if self.scores[self.teams[0]] == self.scores[self.teams[1]]:
+                return True
+            else:
+                return False
+        else:
+            return None
 
 
 # This function might be superflous at the moment. but I might want to use a more
