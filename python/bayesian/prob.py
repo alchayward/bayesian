@@ -1,8 +1,6 @@
 import numpy as np
 from numpy import log
 
-### I may have all the arrays around the wrong way which makes things bad
-
 
 def shannon_entropy(prb_dist):
     """computes shannon entropy of prb_dist
@@ -13,10 +11,11 @@ def shannon_entropy(prb_dist):
 
 
 def bin_samples(sample):
-    bins = np.array(map(lambda x: np.arange(-0.5, x + 1.5, 1),
-                        np.amax(sample, axis=0)))
-    hist = np.histogram2d(sample[0], sample[1], bins=bins, normed=True)[0]
-    return np.ndarray.flatten(hist)
+    return np.ndarray.flatten(
+        np.histogram2d(
+            sample[:, 0], sample[:, 1],
+            bins=map(lambda x: np.arange(-0.5, x + 1.5, 1), np.amax(sample, axis=0)),
+            normed=True)[0])
 
 
 def generate_samples(x, draw_fn, n_samples=1):
@@ -39,8 +38,8 @@ def kl_info(team_trace, param_trace, draw_fn, entropy_fn):
 
     f_draw takes ndarray([theta1, theta2, param1, param2,etc]) and returns ndarray([score1, score2])
     """
-    trace = np.concatenate((team_trace, param_trace))
+    trace = np.concatenate((team_trace, param_trace), axis=1)
     return shannon_entropy(bin_samples(generate_samples(trace, draw_fn))) \
-           + expectation(trace, entropy_fn)
+           + np.sum(expectation(trace, entropy_fn))
 
 
