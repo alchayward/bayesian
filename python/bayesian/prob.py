@@ -27,8 +27,8 @@ def generate_samples(x, draw_fn, n_samples=1):
     return draw_fn(np.tile(x, n_samples))  # creates a larger intermediate array. could do iteratively
 
 
-def expectation(trace, entropy_fn):
-    return np.sum(entropy_fn(trace)) / trace.shape[1]
+def expectation(trace, fn):
+    return np.sum(fn(trace)) / trace.shape[1]
 
 
 def kl_info(team_trace, param_trace, draw_fn, entropy_fn):
@@ -44,22 +44,3 @@ def kl_info(team_trace, param_trace, draw_fn, entropy_fn):
            + expectation(trace, entropy_fn)
 
 
-# Poisson stuff
-
-def arctan_rate_fn(x):
-    return np.array([x[2] * exp(x[3] * arctan(x[0] - x[1])),
-                     x[2] * exp(x[3] * arctan(x[1] - x[0]))])
-
-
-def log_poisson_pr(l, k):
-    return k * log(l) - l - gammaln(k + 1)
-
-
-def draw_from_poisson(x, rate_fn):
-    return poisson(rate_fn(x))  # this is overkill
-
-
-def poisson_entropy(l):
-    # noinspection PyTypeChecker
-    return (1 - exp(-np.pi * l ** 2)) * 1.61 * np.power(log(1 + l), 0.532) \
-        + exp(-np.pi * l ** 2) * (l * log(np.e / l))
