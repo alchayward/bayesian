@@ -1,7 +1,7 @@
 import numpy as np
-from numpy import log, exp, arctan
-from numpy.random import poisson
-from scipy.special import gammaln
+from numpy import log
+
+### I may have all the arrays around the wrong way which makes things bad
 
 
 def shannon_entropy(prb_dist):
@@ -14,7 +14,7 @@ def shannon_entropy(prb_dist):
 
 def bin_samples(sample):
     bins = np.array(map(lambda x: np.arange(-0.5, x + 1.5, 1),
-                        np.amax(sample, axis=1)))
+                        np.amax(sample, axis=0)))
     hist = np.histogram2d(sample[0], sample[1], bins=bins, normed=True)[0]
     return np.ndarray.flatten(hist)
 
@@ -24,11 +24,11 @@ def generate_samples(x, draw_fn, n_samples=1):
         each row of x should contain the paramters of f_draw
         each sample should be an object comparable by == """
     # noinspection PyTypeChecker
-    return draw_fn(np.tile(x, n_samples))  # creates a larger intermediate array. could do iteratively
+    return draw_fn(np.tile(x, (n_samples, 1)))  # creates a larger intermediate array. could do iteratively
 
 
 def expectation(trace, fn):
-    return np.sum(fn(trace)) / trace.shape[1]
+    return np.sum(fn(trace), axis=0) / trace.shape[0]  # will return a vector. so be careful
 
 
 def kl_info(team_trace, param_trace, draw_fn, entropy_fn):

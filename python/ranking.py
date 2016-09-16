@@ -204,7 +204,7 @@ class double_model():
             f = lambda x: 0
         else:
             f = self.kl_func()
-        weights_m =  parmap(f,inds)
+        weights_m = parmap(f,inds)
         weights = {inds[ii]:weights_m[ii] for ii in range(len(inds))}
         print(inds)
         return [{'t1':m[ii][0],'t2':m[ii][1],'weight':weights[ii]} for ii in inds]
@@ -262,7 +262,7 @@ class Seeding(Session, double_model):
         Session.__init__(self,teams)
         #self.current_round = tournament.Round(1)
 
-    def get_teams_to_seed(self,round):
+    def get_teams_to_seed(self, round):
         rgames = filter(lambda g:g.round == round,self.games)
         rteams = [[t.id for t in g.teams] for g in rgames]
         nt_list = []
@@ -276,7 +276,7 @@ class Seeding(Session, double_model):
             if g.round <= round:
                 neg_list.append([t.id for t in g.teams])
         edge_list = []
-        print(neg_list)
+
         for ii in ids:
             for jj in filter(lambda x: not x==ii,ids):
                 if not  any([ [ii,jj] in neg_list, [jj,ii] in neg_list]):
