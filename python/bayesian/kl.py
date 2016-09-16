@@ -25,11 +25,12 @@ def generate_samples(x, draw_fn, n_samples=1):
     """draw samples from a distribution from each instance of x
         each row of x should contain the paramters of f_draw
         each sample should be an object comparable by == """
-    return draw_fn(np.tile(x,n_samples))
+    # noinspection PyTypeChecker
+    return draw_fn(np.tile(x, n_samples))  # creates a larger intermediate array. could do iteratively
 
 
 def expectation(trace, entropy_fn):
-    return np.sum(entropy_fn(trace)) / np.shape(trace)[1]
+    return np.sum(entropy_fn(trace)) / trace.shape[1]
 
 
 def kl_info(team_trace, param_trace, draw_fn, entropy_fn):
@@ -57,12 +58,13 @@ def arctan_rate_fn(x):
 
 
 def draw_from_poisson(x, rate_fn):
-    return poisson(rate_fn(x)) # this is overkill
+    return poisson(rate_fn(x))  # this is overkill
 
 
 def poisson_entropy(l):
+    # noinspection PyTypeChecker
     return (1 - np.exp(-np.pi * l ** 2)) * 1.61 * np.power(np.log(1 + l), 0.532) \
-           + np.exp(-np.pi * l ** 2) * (l * np.log(np.e / l))
+        + np.exp(-np.pi * l ** 2) * (l * np.log(np.e / l))
 
 
 def poisson_entropy_fn(x, rate_fn):
