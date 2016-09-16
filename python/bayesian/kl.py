@@ -63,7 +63,3 @@ def poisson_entropy(l):
     # noinspection PyTypeChecker
     return (1 - exp(-np.pi * l ** 2)) * 1.61 * np.power(log(1 + l), 0.532) \
         + exp(-np.pi * l ** 2) * (l * log(np.e / l))
-
-
-def poisson_entropy_fn(x, rate_fn):
-    rate_fn(x)
