@@ -2,16 +2,12 @@ import numpy as np
 from numpy.random import poisson
 
 
-# rewrite kl info function:
-
-
 def shannon_entropy(prb_dist):
     """computes shannon entropy of prb_dist
         H = sum(p log(p))
         prb_dist is a one dimensional numpy array of probabilities.
     """
-    x = prb_dist[prb_dist > 0.0]  # filter out zero values
-    return -np.sum(x * np.log(x))
+    return (lambda x: -np.sum(x * np.log(x)))(prb_dist[prb_dist > 0.0])
 
 
 def bin_samples(sample):
