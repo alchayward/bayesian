@@ -1,5 +1,7 @@
 import numpy as np
+from numpy import log, exp, arctan
 from numpy.random import poisson
+from scipy.special import gammaln
 
 
 def shannon_entropy(prb_dist):
@@ -7,13 +9,13 @@ def shannon_entropy(prb_dist):
         H = sum(p log(p))
         prb_dist is a one dimensional numpy array of probabilities.
     """
-    return (lambda x: -np.sum(x * np.log(x)))(prb_dist[prb_dist > 0.0])
+    return (lambda x: -np.sum(x * log(x)))(prb_dist[prb_dist > 0.0])
 
 
 def bin_samples(sample):
     bins = np.array(map(lambda x: np.arange(-0.5, x + 1.5, 1),
                         np.amax(sample, axis=1)))
-    hist, _, _ = np.histogram2d(sample[0], sample[1], bins=bins, normed=True)
+    hist = np.histogram2d(sample[0], sample[1], bins=bins, normed=True)[0]
     return np.ndarray.flatten(hist)
 
 
@@ -37,20 +39,20 @@ def kl_info(team_trace, param_trace, draw_fn, entropy_fn):
 
     f_draw takes ndarray([theta1, theta2, param1, param2,etc]) and returns ndarray([score1, score2])
     """
-    # idx = team_idx + param_idx
     trace = np.concatenate((team_trace, param_trace))
-    return shannon_entropy(
-        bin_samples(
-            generate_samples(
-                trace, draw_fn))) \
+    return shannon_entropy(bin_samples(generate_samples(trace, draw_fn))) \
            + expectation(trace, entropy_fn)
 
 
 # Poisson stuff
 
 def arctan_rate_fn(x):
-    return np.array([x[2] * np.exp(x[3] * np.arctan(x[0] - x[1])),
-                     x[2] * np.exp(x[3] * np.arctan(x[1] - x[0]))])
+    return np.array([x[2] * exp(x[3] * arctan(x[0] - x[1])),
+                     x[2] * exp(x[3] * arctan(x[1] - x[0]))])
+
+
+def log_poisson_pr(l, k):
+    return k * log(l) - l - gammaln(k + 1)
 
 
 def draw_from_poisson(x, rate_fn):
@@ -59,8 +61,8 @@ def draw_from_poisson(x, rate_fn):
 
 def poisson_entropy(l):
     # noinspection PyTypeChecker
-    return (1 - np.exp(-np.pi * l ** 2)) * 1.61 * np.power(np.log(1 + l), 0.532) \
-        + np.exp(-np.pi * l ** 2) * (l * np.log(np.e / l))
+    return (1 - exp(-np.pi * l ** 2)) * 1.61 * np.power(log(1 + l), 0.532) \
+        + exp(-np.pi * l ** 2) * (l * log(np.e / l))
 
 
 def poisson_entropy_fn(x, rate_fn):
