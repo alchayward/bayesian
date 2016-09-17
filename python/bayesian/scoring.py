@@ -2,6 +2,7 @@
 import numpy as np
 from prob import expectation
 
+
 def wld(games):
     pass
 
