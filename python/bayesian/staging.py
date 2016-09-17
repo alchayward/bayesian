@@ -1,10 +1,9 @@
-import tournament
-import networkx as nx
+import graph
 
 
 def round_1_staging(preseeding):
     """preseeding is a dictionary {rank : team}. rank starts at 1 :("""
-    return [[preseeding[i], preseeding[i+1]] for i in range(1, len(preseeding), 2)]
+    return [(preseeding[i], preseeding[i + 1]) for i in range(1, len(preseeding), 2)]
 
 
 def round_2_staging(round_1_games):
@@ -21,25 +20,30 @@ def round_2_staging(round_1_games):
     return [first_game] + other_games + [last_game]
 
 
-def build_kl_graph(games, teams_to_stage, teams_trace, param_trace):
-    pass
-    # get complete graph from nodes with teams to stage
-    G = nx.complete_graph(teams_to_stage)
-    # remove edges of games already played
-    G.remove_edges_from(filter(
+def build_team_graph(games, teams_to_stage):
+    g = graph.complete_graph_from_node_list(teams_to_stage)
+
+    g.remove_edges_from(filter(  # remove edges of games already played
         lambda ts: all([t in teams_to_stage for t in ts]),
-        map(lambda g: g.teams, games)))
-    # compute kl_info for each edge. Something special for instamix team
-
-    # return graph with weighted edges
+        map(lambda game: game.teams, games)))
+    return g
 
 
-def stage_games_bayesian(games, teams_to_stage, teams_trace, param_trace):
-    kl_graph = build_kl_graph(games, teams_to_stage, teams_trace, param_trace)
-    return nx.max_weight_matching(kl_graph)
+# if any(getattr(t, 'is_instamix', False) for t in e):  # test for instamix team
+#     g[e]['weight'] = 0
+# else:  # compute kl information
+#     g[e]['weight'] = kl_info(
+#         model_data['teams_trace'][:, map(lambda t: model_data['team_index'][t], e)],
+#         model_data['param_trace'],
+#         model_data['draw_fn'], model_data['entropy_fn'])
 
-def stage_round(games, teams, round, trace):
-    pass
+
+def stage_games_bayesian(games, teams_to_stage, weight_fn):
+    return graph.games_from_weighted_graph(
+        graph.add_weights_to_graph(
+            build_team_graph(games, teams_to_stage),
+            weight_fn))
 
 
-
+# def stage_round(games, teams, round, trace):
+#     pass
