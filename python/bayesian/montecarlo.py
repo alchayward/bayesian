@@ -1,2 +1,63 @@
 import pymc
+from game import Game
+import numpy as np
+from scipy import rand
 
+
+def llh_fn(team_idx, games, prob_fn):
+    # list of lists of the form [t1_idx, t2_idx, s1, s2] for each game
+    game_list = [[team_idx[Game.teams(g)[0]],
+                  team_idx[Game.teams(g)[1]],
+                  Game.scores(g)[Game.teams(g)[0]],
+                  Game.scores(g)[Game.teams(g)[1]]
+                  ] for g in games]
+
+    def log_likelyhood(th, p):
+        sum([prob_fn(th[:, gv[0]], th[:, gv[1]], gv[2], gv[3], p) for gv in game_list])
+
+    return log_likelyhood
+
+
+def pymc_model(model, teams, games):
+    n_teams = len(teams)
+    team_idx = dict(zip(teams, range(n_teams)))
+    log_likelihood = llh_fn(team_idx, filter(lambda g: Game.completed(g), games), model['prob_fn'])
+    theta_i = pymc.Normal('theta_i', mu=0, tau=np.power(1/3.0,2), value=rand(n_teams) * 0.00001)
+
+    @pymc.deterministic()
+    def theta(th=theta_i):
+        return th - np.mean(th)
+
+    @pymc.stochastic(observed=True)
+    def games_played(th=theta, p=model['params'].values()):
+        return log_likelihood(th, p)
+
+    z = locals().copy()
+    z.update(model['params'])
+    m = pymc.Model(z)
+    for key in m.__dict__.keys():
+        if not isinstance(key, basestring):
+            del m.__dict__[key]
+    return m
+
+
+def mcmc_fit(pymc_model, mcmc_parameters):
+    """takes in a pymc model, and some mcmc parameters and returns a mcmc chain"""
+    mcmc = pymc.MCMC(pymc_model)
+    mcmc.use_step_method(pymc.AdaptiveMetropolis, mcmc.theta_i)
+    print('running MCMC')
+    mcmc.sample(mcmc_parameters['points'], mcmc_parameters['burn'], mcmc_parameters['steps'],
+                     progress_bar=False)
+    return mcmc
+
+
+def maximum_likelyhood_estimate(pymc_model):
+    """returns the MLE of team strengths and paramter values"""
+    pass
+    # return team_val, param_val
+
+
+def mcmc_fit_traces(mcmc):
+    team_trace = mcmc.theta.trace[:,:]
+    param_trace = mcmc.theta.trace[:,:] # needs fixing
+    return team_trace, param_trace
