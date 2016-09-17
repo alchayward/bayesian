@@ -1,12 +1,7 @@
 class Game(object):
 
-    def __init__(self, teams, scores=None, game_id=None):
-        """Game object.
-            teams is a list of two teams. identifcation via object id
-            scores is a dictionary {team:score}
-            """
-        self.id = game_id
-        self.teams = teams
+    def __init__(self):
+        pass
 
     @staticmethod
     def new_game(teams, scores=None):

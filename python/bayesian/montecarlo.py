@@ -14,7 +14,6 @@ def llh_fn(team_idx, games, prob_fn):
 
     def log_likelyhood(th, p):
         sum([prob_fn(th[:, gv[0]], th[:, gv[1]], gv[2], gv[3], p) for gv in game_list])
-
     return log_likelyhood
 
 
@@ -44,15 +43,16 @@ def pymc_model(model, teams, games):
     z = locals().copy()
     z.update(model['params'])
     m = pymc.Model(z)
+
     for key in m.__dict__.keys():  # seems to need this or ot throws an error
         if not isinstance(key, basestring):
             del m.__dict__[key]
     return m
 
 
-def mcmc_fit(pymc_model, mcmc_parameters):
+def mcmc_fit(mc_model, mcmc_parameters):
     """takes in a pymc model, and some mcmc parameters and returns a mcmc chain"""
-    mcmc = pymc.MCMC(pymc_model)
+    mcmc = pymc.MCMC(mc_model)
     mcmc.use_step_method(pymc.AdaptiveMetropolis, mcmc.theta_i)
     print('running MCMC')
     mcmc.sample(mcmc_parameters['points'], mcmc_parameters['burn'], mcmc_parameters['steps'],
@@ -62,7 +62,10 @@ def mcmc_fit(pymc_model, mcmc_parameters):
 
 def maximum_likelyhood_estimate(mc_model):
     """returns the MLE of team strengths and paramter values"""
-    pass
+    m = pymc.MAP(mc_model)
+    m.fit()
+    return (m.values['theta'],) + tuple(m.values[p] for p in m.params)
+
     # return team_val, param_val
 
 
