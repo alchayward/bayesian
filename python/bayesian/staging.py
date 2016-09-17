@@ -1,3 +1,5 @@
+from unittest import TestCase
+
 import graph
 
 
@@ -6,18 +8,20 @@ def round_1_staging(preseeding):
     return [(preseeding[i], preseeding[i + 1]) for i in range(1, len(preseeding), 2)]
 
 
-def round_2_staging(round_1_games):
+def round_2_staging(round_1_games, win_fn, lose_fn):
     """takes in partial or full game results from round 1 and starts seeding round 2
      Assume that games in the first round were staged according to round_1_staging.
      order is important here...
+     win_fn, lose_fn need to return the winner/loser from a game or None if it hasn't been played.
+     In the case of a draw they need to pick one of them out
      """
-    # This is pretty fragile right now.
-    winners, losers = (map(lambda x: x.winner, round_1_games), map(lambda x: x.loser, round_1_games))
+    winners, losers = (map(lambda x: win_fn(x), round_1_games),
+                       map(lambda x: lose_fn(x), round_1_games))
     first_game = winners[:2]
     last_game = losers[-2:]
     other_games = map(list, zip(winners[2:], losers[:-2]))
-
-    return [first_game] + other_games + [last_game]
+    games = [first_game] + other_games + [last_game]
+    return filter(lambda g: any([t is None for t in g]), games)
 
 
 def build_team_graph(games, teams_to_stage):
@@ -43,7 +47,3 @@ def stage_games_bayesian(games, teams_to_stage, weight_fn):
         graph.add_weights_to_graph(
             build_team_graph(games, teams_to_stage),
             weight_fn))
-
-
-# def stage_round(games, teams, round, trace):
-#     pass
