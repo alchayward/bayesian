@@ -8,39 +8,56 @@ class Game:
         self.id = game_id
         self.teams = teams
 
+    @staticmethod
+    def new_game(teams, scores=None):
+
         if not scores:
-            self.scores = dict(zip(teams, [None, None]))
-        else:
-            self.scores = scores
+            scores = dict(zip(teams, [None, None]))
+        return {'teams': teams, 'scores': scores}
 
-    @property
-    def completed(self):
-        return all(self.scores.values())
+    @staticmethod
+    def scores(g):
+        return g['scores']
 
-    @property
-    def winner(self):  # not sure what to put here in case of draw
-        if self.completed:
-            if self.scores[self.teams[0]] > self.scores[self.teams[1]]:
-                return self.teams[0]
+    @staticmethod
+    def teams(g):
+        return g['teams']
+
+    @staticmethod
+    def completed(g):
+        return all(g['scores'].values())
+
+    @staticmethod
+    def winner(g):  # not sure what to put here in case of draw
+        if Game.completed(g):
+            scores = Game.scores(g)
+            teams = Game.teams(g)
+            if scores[teams[0]] > scores[teams[1]]:
+                return teams[0]
             else:
-                return self.teams[1]
+                return teams[1]
         else:
             return None
 
-    @property
-    def loser(self):  # not sure what to put here in case of draw
-        if self.completed:
-            if self.scores[self.teams[0]] > self.scores[self.teams[1]]:
-                return self.teams[1]
+    @staticmethod
+    def loser(g):  # not sure what to put here in case of draw
+
+        if Game.completed(g):
+            scores = Game.scores(g)
+            teams = Game.teams(g)
+            if scores[teams[0]] > scores[teams[1]]:
+                return teams[1]
             else:
-                return self.teams[0]
+                return teams[0]
         else:
             return None
 
-    @property
-    def is_draw(self):
-        if self.completed:
-            if self.scores[self.teams[0]] == self.scores[self.teams[1]]:
+    @staticmethod
+    def is_draw(g):
+        if Game.completed(g):
+            scores = Game.scores(g)
+            teams = Game.teams(g)
+            if scores[teams[0]] == scores[teams[1]]:
                 return True
             else:
                 return False
