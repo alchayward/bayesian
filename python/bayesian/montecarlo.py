@@ -19,6 +19,15 @@ def llh_fn(team_idx, games, prob_fn):
 
 
 def pymc_model(model, teams, games):
+    """
+
+    :param model: dictionary.
+        prob_fn: f(t1, t2, score1, score2, parameters). should broadcast...
+        params: parameters for log fn. values or pymc variables
+    :param teams: list of teams. teams are hashable
+    :param games: list of games, that impliment Game functions
+    :return: pymc model
+    """
     n_teams = len(teams)
     team_idx = dict(zip(teams, range(n_teams)))
     log_likelihood = llh_fn(team_idx, filter(lambda g: Game.completed(g), games), model['prob_fn'])
@@ -35,7 +44,7 @@ def pymc_model(model, teams, games):
     z = locals().copy()
     z.update(model['params'])
     m = pymc.Model(z)
-    for key in m.__dict__.keys():
+    for key in m.__dict__.keys():  # seems to need this or ot throws an error
         if not isinstance(key, basestring):
             del m.__dict__[key]
     return m
@@ -51,13 +60,13 @@ def mcmc_fit(pymc_model, mcmc_parameters):
     return mcmc
 
 
-def maximum_likelyhood_estimate(pymc_model):
+def maximum_likelyhood_estimate(mc_model):
     """returns the MLE of team strengths and paramter values"""
     pass
     # return team_val, param_val
 
 
 def mcmc_fit_traces(mcmc):
-    team_trace = mcmc.theta.trace[:,:]
-    param_trace = mcmc.theta.trace[:,:] # needs fixing
+    team_trace = mcmc.theta.trace[:, :]
+    param_trace = mcmc.theta.trace[:, :]  # needs fixing
     return team_trace, param_trace

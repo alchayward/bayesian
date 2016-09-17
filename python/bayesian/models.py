@@ -3,24 +3,34 @@ import numpy as np
 from numpy.random import poisson
 from scipy.special import gammaln
 from numpy import log, exp, arctan
-import pymc
+from pymc.distributions import TruncatedNormal
 
 
 def model_dict(log_prob, draw_fn, entropy_fn, param_priors):
-    return {'log_prob': log_prob,
+    return {'prob_fn': log_prob,
             'draw_fn': draw_fn,
             'entropy_fn': entropy_fn,
-            'param_priors': param_priors}
+            'params': param_priors}
 
 
-def poission_model(rate_fn, param_priors):
-    return model_dict(lambda x,k: log_poisson_pr(rate_fn(x), k),
-                      )
+def poission_model(rate_fn, params):
+    return model_dict(
+        lambda x1, x2, s1, s2, p:
+            (lambda r: log_poisson_pr(r[:, 0], s1) + log_poisson_pr(r[:, 1], s2))(rate_fn(x1, x2, p)),
+        lambda x: poisson(rate_fn(x[:, 0], x[:, 1], x[:, 2:])),
+        lambda x: np.sum(poisson_entropy(rate_fn(x[:, 0], x[:, 1], x[:, 2:])), axis=1),
+        params)
 
 
-def arctan_rate_fn(x):
-    return np.transpose(np.array([x[:, 2] * exp(x[:, 3] * arctan(x[:, 0] - x[:, 1])),
-                     x[:, 2] * exp(x[:, 3] * arctan(x[:, 1] - x[:, 0]))]))
+def arctan_poisson_model():
+    poission_model(arctan_rate_fn,
+        {'scale': TruncatedNormal('scale', mu=2, tau=np.power(1 / 5.0, 2), value=2, a=0, b=10),
+         'expo': TruncatedNormal('scale', mu=1, tau=np.power(1 / 5.0, 2), value=1, a=0, b=4)})
+
+
+def arctan_rate_fn(x1, x2, p):
+    d = p[:, 1] * arctan(x1 - x2)
+    return np.array([p[:, 0] * exp(d), p[:, 0] * exp(-d)])
 
 
 def log_poisson_pr(l, k):

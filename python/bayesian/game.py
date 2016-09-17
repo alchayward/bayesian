@@ -63,9 +63,3 @@ class Game:
                 return False
         else:
             return None
-
-
-# This function might be superflous at the moment. but I might want to use a more
-# sophistcated id tracking thing later
-def new_game(team_1, team_2):
-    return Game([team_1, team_2])
