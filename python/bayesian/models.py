@@ -13,7 +13,7 @@ def model_dict(log_prob, draw_fn, entropy_fn, param_priors):
             'params': param_priors}
 
 
-def poission_model(rate_fn, params):
+def poisson_model(rate_fn, params):
     return model_dict(
         lambda x1, x2, s1, s2, p:
         (lambda r: log_poisson_pr(r[:, 0], s1) + log_poisson_pr(r[:, 1], s2))(rate_fn(x1, x2, p)),
@@ -23,7 +23,7 @@ def poission_model(rate_fn, params):
 
 
 def arctan_poisson_model():
-    poission_model(arctan_rate_fn,
+    return poisson_model(arctan_rate_fn,
                    {'scale': TruncatedNormal('scale', mu=2, tau=np.power(1 / 5.0, 2), value=2, a=0, b=10),
                     'expo': TruncatedNormal('scale', mu=1, tau=np.power(1 / 5.0, 2), value=1, a=0, b=4)})
 
