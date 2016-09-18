@@ -12,6 +12,7 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="bayesian" />
+          <option value="pymc.distributions.TruncatedNormal" />
         </list>
       </option>
     </inspection_tool>
