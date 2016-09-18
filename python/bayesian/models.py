@@ -12,7 +12,8 @@ def model_dict(log_prob, draw_fn, entropy_fn, param_priors, mc_params=default_mc
     return {'prob_fn': log_prob,
             'draw_fn': draw_fn,
             'entropy_fn': entropy_fn,
-            'params': param_priors}
+            'params': param_priors,
+            'mc_params': mc_params}
 
 
 def poisson_model(rate_fn, params):
