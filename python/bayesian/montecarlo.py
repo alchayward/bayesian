@@ -77,7 +77,7 @@ def maximum_likelyhood_estimate(mc_model):
     # return team_val, param_val
 
 
-def mcmc_fit_traces(mcmc):
-    team_trace = mcmc.theta.trace[:, :]
-    param_trace = mcmc.theta.trace[:, :]  # needs fixing
+def mcmc_fit_traces(model, mcmc):
+    team_trace = mcmc.trace('theta')[:]
+    param_trace = [mcmc.trace(name)[:] for name in model['params'].keys()]
     return team_trace, param_trace
