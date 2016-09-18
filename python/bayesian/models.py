@@ -47,3 +47,11 @@ def poisson_entropy(l):
     # noinspection PyTypeChecker
     return (1 - exp(-np.pi * l ** 2)) * 1.61 * np.power(log(1 + l), 0.532) \
            + exp(-np.pi * l ** 2) * (l * log(np.e / l))
+
+
+def default_parameters():
+    return {'model':'arctan'}
+
+
+def model_from_parameters(parameters):
+    return {'arctan': arctan_poisson_model}[parameters['model']]()
