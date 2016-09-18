@@ -6,7 +6,9 @@ from numpy import log, exp, arctan
 from pymc.distributions import TruncatedNormal
 
 
-def model_dict(log_prob, draw_fn, entropy_fn, param_priors):
+default_mc_parameters = {'points': 200000, 'burn': 10000, 'steps': 4}
+
+def model_dict(log_prob, draw_fn, entropy_fn, param_priors, mc_params=default_mc_parameters):
     return {'prob_fn': log_prob,
             'draw_fn': draw_fn,
             'entropy_fn': entropy_fn,
@@ -24,13 +26,13 @@ def poisson_model(rate_fn, params):
 
 def arctan_poisson_model():
     return poisson_model(arctan_rate_fn,
-                   {'scale': TruncatedNormal('scale', mu=2, tau=np.power(1 / 5.0, 2), value=2, a=0, b=10),
-                    'expo': TruncatedNormal('scale', mu=1, tau=np.power(1 / 5.0, 2), value=1, a=0, b=4)})
+                   {'scale': lambda: TruncatedNormal('scale', mu=2, tau=np.power(1 / 5.0, 2), value=2, a=0, b=10),
+                    'expo': lambda: TruncatedNormal('expo', mu=1, tau=np.power(1 / 5.0, 2), value=1, a=0, b=4)})
 
 
 def arctan_rate_fn(x1, x2, p):
-    d = p[:, 1] * arctan(x1 - x2)
-    return np.array([p[:, 0] * exp(d), p[:, 0] * exp(-d)])
+    d = p[1] * arctan(x1 - x2)
+    return np.array([p[0] * exp(d), p[0] * exp(-d)])
 
 
 def log_poisson_pr(l, k):

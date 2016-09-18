@@ -2,18 +2,21 @@ import graph
 from models import default_parameters
 
 
-def new_session(teams, preseeding=None, model_parameters=default_parameters):
-    return {'teams': teams,
+def new_session(team_ids, preseeding=None, model_parameters=default_parameters):
+    return {'teams': team_ids,
             'games': [],
-            'rounds': [],
+            'rounds': dict(),
             'preseeding': preseeding,
             'model_params': model_parameters}
 
 
-def add_game_to_session(session, game, rnd=None):
+def add_game_to_session(session, game_id, rnd=None):
     sess = session.copy()
-    sess['games'].append(game)
-    sess['rounds'].append(rnd)
+    sess['games'].append(game_id)
+    try:
+        sess['rounds'][rnd].append(game_id)
+    except KeyError:
+        sess['rounds'].update({rnd, [game_id]})
     return sess
 
 

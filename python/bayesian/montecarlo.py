@@ -13,7 +13,7 @@ def llh_fn(team_idx, games, prob_fn):
                   ] for g in games]
 
     def log_likelyhood(th, p):
-        sum([prob_fn(th[:, gv[0]], th[:, gv[1]], gv[2], gv[3], p) for gv in game_list])
+        returnsum([prob_fn(th[:, gv[0]], th[:, gv[1]], gv[2], gv[3], p) for gv in game_list])
     return log_likelyhood
 
 
@@ -36,8 +36,15 @@ def pymc_model(model, teams, games):
     def theta(th=theta_i):
         return th - np.mean(th)
 
+    # This feels like the wrong thing to do, but it works. Need to figure out why
+    params = model['params'].values()
+    n_params = len(params)
+    x = np.empty(n_params, dtype=object)
+    for i in range(0, n_params):
+        x[i] = params[i]()
+
     @pymc.stochastic(observed=True)
-    def games_played(value=games, th=theta, p=model['params'].values()):
+    def games_played(value=games, th=theta, p=x):
         return log_likelihood(th, p)
 
     z = locals().copy()
@@ -57,6 +64,7 @@ def mcmc_fit(mc_model, mcmc_parameters):
     print('running MCMC')
     mcmc.sample(mcmc_parameters['points'], mcmc_parameters['burn'], mcmc_parameters['steps'],
                      progress_bar=False)
+    print('finished MCMC')
     return mcmc
 
 
