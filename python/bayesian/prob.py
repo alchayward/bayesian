@@ -27,7 +27,7 @@ def generate_samples(x, draw_fn, n_samples=1):
 
 
 def expectation(trace, fn):
-    return np.sum(fn(trace), axis=0) / trace.shape[0]  # will return a vector. so be careful
+    return np.sum(fn(trace), axis=0) / (1.0 * trace.shape[0])  # will return a vector. so be careful
 
 
 def kl_info(team_trace, param_trace, draw_fn, entropy_fn):

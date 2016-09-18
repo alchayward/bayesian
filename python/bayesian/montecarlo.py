@@ -13,8 +13,12 @@ def llh_fn(team_idx, games, prob_fn):
                   ] for g in games]
 
     def log_likelyhood(th, p):
-        returnsum([prob_fn(th[:, gv[0]], th[:, gv[1]], gv[2], gv[3], p) for gv in game_list])
+        return sum([prob_fn(th[gv[0]], th[gv[1]], gv[2], gv[3], p) for gv in game_list])
     return log_likelyhood
+
+
+def make_team_idx(teams):
+    return dict(zip(teams, range(len(teams))))
 
 
 def pymc_model(model, teams, games):
@@ -27,10 +31,9 @@ def pymc_model(model, teams, games):
     :param games: list of games, that impliment Game functions
     :return: pymc model
     """
-    n_teams = len(teams)
-    team_idx = dict(zip(teams, range(n_teams)))
+    team_idx = make_team_idx(teams)
     log_likelihood = llh_fn(team_idx, filter(lambda g: Game.completed(g), games), model['prob_fn'])
-    theta_i = pymc.Normal('theta_i', mu=0, tau=np.power(1/3.0,2), value=rand(n_teams) * 0.00001)
+    theta_i = pymc.Normal('theta_i', mu=0, tau=np.power(1/3.0,2), value=rand(len(teams)) * 0.00001)
 
     @pymc.deterministic()
     def theta(th=theta_i):
@@ -44,11 +47,11 @@ def pymc_model(model, teams, games):
         x[i] = params[i]()
 
     @pymc.stochastic(observed=True)
-    def games_played(value=games, th=theta, p=x):
+    def games_played(value=np.array([0]), th=theta, p=x):
         return log_likelihood(th, p)
 
     z = locals().copy()
-    z.update(model['params'])
+    # z.update(model['params'].keys())
     m = pymc.Model(z)
 
     for key in m.__dict__.keys():  # seems to need this or ot throws an error
@@ -63,7 +66,7 @@ def mcmc_fit(mc_model, mcmc_parameters):
     mcmc.use_step_method(pymc.AdaptiveMetropolis, mcmc.theta_i)
     print('running MCMC')
     mcmc.sample(mcmc_parameters['points'], mcmc_parameters['burn'], mcmc_parameters['steps'],
-                     progress_bar=False)
+                     progress_bar=True)
     print('finished MCMC')
     return mcmc
 
