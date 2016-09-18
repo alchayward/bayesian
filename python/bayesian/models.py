@@ -5,8 +5,8 @@ from scipy.special import gammaln
 from numpy import log, exp, arctan
 from pymc.distributions import TruncatedNormal
 
-
 default_mc_parameters = {'points': 200000, 'burn': 10000, 'steps': 4}
+
 
 def model_dict(log_prob, draw_fn, entropy_fn, param_priors, mc_params=default_mc_parameters):
     return {'prob_fn': log_prob,
