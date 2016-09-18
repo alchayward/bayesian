@@ -32,8 +32,8 @@ def arctan_poisson_model():
 
 
 def arctan_rate_fn(x1, x2, p):
-    d = p[1] * arctan(x1 - x2)
-    return np.array([p[0] * exp(d), p[0] * exp(-d)])
+    d = p[:, 1] * arctan(x1 - x2)
+    return np.array([p[:, 0] * exp(d), p[:, 0] * exp(-d)])
 
 
 def log_poisson_pr(l, k):
