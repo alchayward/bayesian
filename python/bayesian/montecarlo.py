@@ -37,7 +37,7 @@ def pymc_model(model, teams, games):
         return th - np.mean(th)
 
     @pymc.stochastic(observed=True)
-    def games_played(th=theta, p=model['params'].values()):
+    def games_played(value=games, th=theta, p=model['params'].values()):
         return log_likelihood(th, p)
 
     z = locals().copy()
