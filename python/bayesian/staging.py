@@ -1,4 +1,21 @@
 import graph
+from models import default_parameters
+
+
+def new_session(teams, preseeding=None, model_parameters=default_parameters):
+    return {'teams': teams,
+            'games': [],
+            'rounds': [],
+            'preseeding': preseeding,
+            'model_params': model_parameters}
+
+
+def add_game_to_session(session, game, rnd=None):
+    sess = session.copy()
+    sess['games'].append(game)
+    sess['rounds'].append(rnd)
+    return sess
+
 
 
 def round_1_staging(preseeding):
