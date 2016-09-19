@@ -10,15 +10,14 @@ def new_session(team_ids, preseeding=None, model_parameters=default_parameters):
             'model_params': model_parameters}
 
 
-def add_game_to_session(session, game_id, rnd=None):
+def add_game_to_session(session, game_id, rnd):
     sess = session.copy()
-    sess['games'].append(game_id)
+    sess['games'] = session['games'] + [game_id]
     try:
         sess['rounds'][rnd].append(game_id)
     except KeyError:
         sess['rounds'].update({rnd, [game_id]})
     return sess
-
 
 
 def round_1_staging(preseeding):
@@ -50,7 +49,7 @@ def build_team_graph(games, teams_to_stage):
         map(lambda game: game.teams, games)))
     return g
 
-
+# Need to put this insta-mix logic somewhere
 # if any(getattr(t, 'is_instamix', False) for t in e):  # test for instamix team
 #     g[e]['weight'] = 0
 # else:  # compute kl information

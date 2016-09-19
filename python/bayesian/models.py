@@ -45,8 +45,12 @@ def log_poisson_pr(l, k):
     return k * log(l) - l - gammaln(k + 1)
 
 
-def draw_from_poisson(x, rate_fn):
-    return poisson(rate_fn(x))  # this is overkill
+def draw_from_poisson_fn(rate_fn):
+    return lambda x: poisson(rate_fn(x[:, 0], x[:, 1], np.transpose(x[:, 2:])))
+
+
+def poisson_entropy_fn(rate_fn):
+    return lambda x: np.sum(poisson_entropy(rate_fn(x[:, 0], x[:, 1], np.transpose(x[:, 2:]))), axis=0)
 
 
 def poisson_entropy(l):

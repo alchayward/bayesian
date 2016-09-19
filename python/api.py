@@ -4,33 +4,9 @@ import rq
 import os
 app = FlaskAPI(__name__)
 
-
-
-class DB(object):
-
-    def __init__(self,data):
-        self._data = data
-    @property
-    def data(self):
-        return self._data
-    def set_DB(self,data):
-        self._data = data
-
-def init_DB():
-    pass
-
-
-DB = init_DB()
-
-redis_host = 'localhost'#os.environ['REDIS_HOST']
-redis_port = '6379'#os.environ['REDIS_PORT']
-wait_time = 1#os.environ['WAIT_TIME']
-r = redis.StrictRedis(host=redis_host, port=redis_port, db=0)
-q = Queue(connection=redis.Redis())
-
-
 # define api:
 #    tournament
+#       teams
 #       session
 #           add, remove, stage next games, get ranking
 #           teams
@@ -42,18 +18,15 @@ q = Queue(connection=redis.Redis())
 #                   score, teams
 #
 
-
-
-def do_job(f,argss):
-
-    job = q.enqueue_call(func=f, args=argss, timeout=wait_time)
-    return job.result
-
-
-def update_DB
-
-def team_ranking_text(session,team):
-pass
+#   Teams
+#        team
+#           members
+#           id
+#           name
+#   Games
+#       game
+#           teams
+#           scores
 
 def note_repr(key):
     return {

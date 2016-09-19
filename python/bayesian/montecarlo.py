@@ -21,19 +21,19 @@ def make_team_idx(teams):
     return dict(zip(teams, range(len(teams))))
 
 
-def pymc_model(model, teams, games):
+def pymc_model(model, team_idx, games):
     """
 
     :param model: dictionary.
         prob_fn: f(t1, t2, score1, score2, parameters). should broadcast...
         params: parameters for log fn. values or pymc variables
-    :param teams: list of teams. teams are hashable
+    :param team_idx: array index for each team
     :param games: list of games, that impliment Game functions
     :return: pymc model
     """
-    team_idx = make_team_idx(teams)
+    n_teams = max(team_idx.values()) + 1
     log_likelihood = llh_fn(team_idx, filter(lambda g: Game.completed(g), games), model['prob_fn'])
-    theta_i = pymc.Normal('theta_i', mu=0, tau=np.power(1/3.0,2), value=rand(len(teams)) * 0.00001)
+    theta_i = pymc.Normal('theta_i', mu=0, tau=np.power(1/3.0, 2), value=rand(n_teams) * 0.00001)
 
     @pymc.deterministic()
     def theta(th=theta_i):
@@ -77,10 +77,11 @@ def maximum_likelyhood_estimate(mc_model):
     m.fit()
     return (m.values['theta'],) + tuple(m.values[p] for p in m.params)
 
-    # return team_val, param_val
 
-
-def mcmc_fit_traces(model, mcmc):
-    team_trace = mcmc.trace('theta')[:]
-    param_trace = np.array([mcmc.trace(name)[:] for name in model['params'].keys()])
-    return team_trace, param_trace
+def get_trace_dict(model, teams, games):
+    team_idx = make_team_idx(teams)
+    mcmc = mcmc_fit(pymc_model(model, team_idx, games),
+                    model['mc_params'])
+    d = {k: mcmc.trace('theta')[:, v] for k, v in team_idx.items()}
+    d.update({k: mcmc.trace(k)[:] for k, v in model['params'].items()})
+    return d

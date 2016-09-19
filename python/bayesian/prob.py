@@ -13,12 +13,12 @@ def shannon_entropy(prb_dist):
 def bin_samples(sample):
     return np.ndarray.flatten(
         np.histogram2d(
-            sample[:, 0], sample[:, 1],
-            bins=map(lambda x: np.arange(-0.5, x + 1.5, 1), np.amax(sample, axis=0)),
+            sample[0], sample[1],
+            bins=[np.arange(-0.5, x + 1.5, 1) for x in np.amax(sample, axis=1)],
             normed=True)[0])
 
 
-def generate_samples(x, draw_fn, n_samples=1):
+def generate_samples(x, draw_fn, n_samples=5):
     """draw samples from a distribution from each instance of x
         each row of x should contain the paramters of f_draw
         each sample should be an object comparable by == """
@@ -40,6 +40,6 @@ def kl_info(team_trace, param_trace, draw_fn, entropy_fn):
     """
     trace = np.concatenate((team_trace, param_trace), axis=1)
     return shannon_entropy(bin_samples(generate_samples(trace, draw_fn))) \
-           + np.sum(expectation(trace, entropy_fn))
+           - np.sum(expectation(trace, entropy_fn))
 
 
