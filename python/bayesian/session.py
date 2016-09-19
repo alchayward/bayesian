@@ -58,5 +58,9 @@ def teams(session):
     return session['teams']
 
 
+def add_team_to_session(session, team):
+    session['teams'].append(team)
+
+
 def completed_games(session):
     return filter(completed, games(session))
