@@ -1,5 +1,5 @@
 import pymc
-from game import Game
+import game as Game
 import numpy as np
 from scipy import rand
 

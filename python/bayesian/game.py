@@ -1,60 +1,60 @@
-class Game(object):
+from useful import flatten
 
-    def __init__(self):
-        pass
 
-    @staticmethod
-    def new_game(teams, scores=None):
+def new_game(ts, ss=None):
+    if not ss:
+        ss = dict(zip(ts, [None, None]))
+    return {'teams': ts, 'scores': ss}
 
-        if not scores:
-            scores = dict(zip(teams, [None, None]))
-        return {'teams': teams, 'scores': scores}
 
-    @staticmethod
-    def scores(g):
-        return g['scores']
+def scores(g):
+    return g['scores']
 
-    @staticmethod
-    def teams(g):
-        return g['teams']
 
-    @staticmethod
-    def completed(g):
-        return all(g['scores'].values())
+def teams(g):
+    return g['teams']
 
-    @staticmethod
-    def winner(g):  # not sure what to put here in case of draw
-        if Game.completed(g):
-            scores = Game.scores(g)
-            teams = Game.teams(g)
-            if scores[teams[0]] > scores[teams[1]]:
-                return teams[0]
-            else:
-                return teams[1]
+
+def completed(g):
+    return all(g['scores'].values())
+
+
+def winner(g):  # not sure what to put here in case of draw
+    if completed(g):
+        s = scores(g)
+        t = teams(g)
+        if s[t[0]] > s[t[1]]:
+            return t[0]
         else:
-            return None
+            return t[1]
+    else:
+        return None
 
-    @staticmethod
-    def loser(g):  # not sure what to put here in case of draw
 
-        if Game.completed(g):
-            scores = Game.scores(g)
-            teams = Game.teams(g)
-            if scores[teams[0]] > scores[teams[1]]:
-                return teams[1]
-            else:
-                return teams[0]
+def loser(g):  # not sure what to put here in case of draw
+
+    if completed(g):
+        s = scores(g)
+        t = teams(g)
+        if s[t[0]] > s[t[1]]:
+            return t[1]
         else:
-            return None
+            return t[0]
+    else:
+        return None
 
-    @staticmethod
-    def is_draw(g):
-        if Game.completed(g):
-            scores = Game.scores(g)
-            teams = Game.teams(g)
-            if scores[teams[0]] == scores[teams[1]]:
-                return True
-            else:
-                return False
+
+def is_draw(g):
+    if completed(g):
+        s = scores(g)
+        t = teams(g)
+        if s[t[0]] == s[t[1]]:
+            return True
         else:
-            return None
+            return False
+    else:
+        return None
+
+
+def teams_in_games(games):
+    return list(set(flatten([g['teams'] for g in games])))

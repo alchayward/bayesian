@@ -1,23 +1,6 @@
 import graph
+import game as Game
 from models import default_parameters
-
-
-def new_session(team_ids, preseeding=None, model_parameters=default_parameters):
-    return {'teams': team_ids,
-            'games': [],
-            'rounds': dict(),
-            'preseeding': preseeding,
-            'model_params': model_parameters}
-
-
-def add_game_to_session(session, game_id, rnd):
-    sess = session.copy()
-    sess['games'] = session['games'] + [game_id]
-    try:
-        sess['rounds'][rnd].append(game_id)
-    except KeyError:
-        sess['rounds'].update({rnd, [game_id]})
-    return sess
 
 
 def round_1_staging(preseeding):
@@ -64,3 +47,10 @@ def stage_games_bayesian(games, teams_to_stage, weight_fn):
         graph.add_weights_to_graph(
             build_team_graph(games, teams_to_stage),
             weight_fn))
+
+
+def teams_left_in_round(games_in_round, teams):
+    return filter(lambda t: t not in Game.teams_in_games(games_in_round), teams)
+
+
+
