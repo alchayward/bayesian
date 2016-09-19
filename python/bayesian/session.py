@@ -16,25 +16,8 @@ def mc_traces_is_current(session):
     return set(session['mc_traces']['games']) == set(completed_games(session))
 
 
-def update_mc_traces(session, all_games=None):
-    gs = completed_games(session)
-    if all_games is None:
-        all_games = gs
-    model = model_from_parameters(session['model_params'])
-    session['mc_traces'] = {'trace_dict': get_trace_dict(model, session['teams'], all_games),
-                            'games': gs}
-
-
 def new_round(rnd):
     return {'round': rnd, 'games': []}
-
-
-def add_round_to_session(session, rnd):
-    session['rounds'].append(rnd)
-
-
-def add_game_to_round(rnd, game):
-    rnd['games'].append(game)
 
 
 def find_round(session, game):
@@ -44,22 +27,12 @@ def find_round(session, game):
     return None
 
 
-def remove_game_from_session(session, game):
-    # find which round the game is in
-    r = find_round(session, game)
-    r['games'].remove(game)
-
-
 def games(session):
     return sum(r['games'] for r in session['rounds'])
 
 
 def teams(session):
     return session['teams']
-
-
-def add_team_to_session(session, team):
-    session['teams'].append(team)
 
 
 def completed_games(session):
