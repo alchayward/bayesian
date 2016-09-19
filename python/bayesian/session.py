@@ -1,5 +1,6 @@
-from models import default_parameters
-from game import new_game
+from models import default_parameters, model_from_parameters
+from montecarlo import get_trace_dict
+from game import completed
 
 
 def new_session(teams, preseeding=None, model_parameters=default_parameters):
@@ -11,8 +12,18 @@ def new_session(teams, preseeding=None, model_parameters=default_parameters):
             'model_params': model_parameters}
 
 
-def get_mc_traces(session):
-    # What if we want to use a wider set of games, which we've used in the past?
+def mc_traces_is_current(session):
+    return set(session['mc_traces']['games']) == completed_games(session)
+
+
+def update_mc_traces(session, all_games=None):
+    if all_games is None:
+        all_games = games(session)
+    gs = completed_games(session)
+    model = model_from_parameters(session['model_params'])
+    session['mc_traces'] = {'trace:dict': get_trace_dict(model, session['teams'], all_games),
+                            'games': gs}
+
 
 
 def new_round(rnd):
@@ -42,3 +53,7 @@ def remove_game_from_session(session, game):
 
 def games(session):
     return sum(r['games'] for r in session['rounds'])
+
+
+def completed_games(session):
+    return filter(completed, games(session))
