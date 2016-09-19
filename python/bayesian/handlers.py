@@ -21,7 +21,7 @@ def add_game_to_round(rnd, game):
     rnd['games'].append(game)
 
 
-def add_team(tournament, team):
+def add_team_to_tournament(tournament, team):
     tournament['teams'].append(team)
 
 
