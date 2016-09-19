@@ -13,13 +13,13 @@ def new_session(teams, preseeding=None, model_parameters=default_parameters):
 
 
 def mc_traces_is_current(session):
-    return set(session['mc_traces']['games']) == completed_games(session)
+    return set(session['mc_traces']['games']) == set(completed_games(session))
 
 
 def update_mc_traces(session, all_games=None):
-    if all_games is None:
-        all_games = games(session)
     gs = completed_games(session)
+    if all_games is None:
+        all_games = gs
     model = model_from_parameters(session['model_params'])
     session['mc_traces'] = {'trace_dict': get_trace_dict(model, session['teams'], all_games),
                             'games': gs}
