@@ -20,8 +20,7 @@ def poisson_model(rate_fn, params):
     return model_dict(
         lambda x1, x2, s1, s2, p:
         (lambda r: log_poisson_pr(r[0], s1) + log_poisson_pr(r[1], s2))(rate_fn(x1, x2, p)),
-        lambda x: poisson(rate_fn(x[0], x[1], x[2:])),
-        lambda x: np.sum(poisson_entropy(rate_fn(x[:, 0], x[:, 1], x[:, 2:])), axis=1),
+        make_metric_fn(draw_from_poisson_fn(rate_fn), poisson_entropy_fn(rate_fn)),
         params)
 
 
@@ -29,6 +28,7 @@ def make_metric_fn(draw_fn, entropy_fn):
     def metric_fn(t1, t2, xt, pt):
         return kl_info(xt[:, [t1, t2]], pt, draw_fn, entropy_fn)
     return metric_fn
+
 
 def arctan_poisson_model():
     return poisson_model(arctan_rate_fn,
