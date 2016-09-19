@@ -1,5 +1,5 @@
-def new_tournament(teams, t_id=None):
-    return {'id': t_id, 'teams': teams, 'sessions': []}
+def new_tournament():
+    return {'teams': [], 'sessions': []}
 
 
 def add_team(tournament, team):
