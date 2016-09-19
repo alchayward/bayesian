@@ -3,8 +3,8 @@ from montecarlo import get_trace_dict
 from game import completed
 
 
-def new_session(teams, preseeding=None, model_parameters=default_parameters):
-    return {'teams': teams,
+def new_session(ts, preseeding=None, model_parameters=default_parameters):
+    return {'teams': ts,
             'rounds': [],
             'preseeding': preseeding,
             'proposed_games': [],
@@ -52,6 +52,10 @@ def remove_game_from_session(session, game):
 
 def games(session):
     return sum(r['games'] for r in session['rounds'])
+
+
+def teams(session):
+    return session['teams']
 
 
 def completed_games(session):
