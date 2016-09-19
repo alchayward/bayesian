@@ -21,9 +21,8 @@ def update_mc_traces(session, all_games=None):
         all_games = games(session)
     gs = completed_games(session)
     model = model_from_parameters(session['model_params'])
-    session['mc_traces'] = {'trace:dict': get_trace_dict(model, session['teams'], all_games),
+    session['mc_traces'] = {'trace_dict': get_trace_dict(model, session['teams'], all_games),
                             'games': gs}
-
 
 
 def new_round(rnd):
