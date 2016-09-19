@@ -36,3 +36,7 @@ def update_mc_traces(session, all_games=None):
     model = model_from_parameters(session['model_params'])
     session['mc_traces'] = {'trace_dict': get_trace_dict(model, session['teams'], all_games),
                             'games': gs}
+
+
+def add_tournament(db, t):
+    db['tournaments'].append(t)
