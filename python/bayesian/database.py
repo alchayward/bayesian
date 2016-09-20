@@ -4,7 +4,7 @@ from game import new_game
 
 
 def new_database():
-    return {'tournaments': [], 'players': [], 'teams': []}
+    return {'tournaments': [], 'players': [], 'games': [], 'teams': [], 'sessions': []}
 
 db_file = 'sqlite:///:memory:'
 #engine = sql.create_engine(db, echo=True)

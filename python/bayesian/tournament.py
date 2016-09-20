@@ -1,4 +1,4 @@
-def new_tournament():
-    return {'teams': [], 'sessions': []}
+def new_tournament(name):
+    return {'name': name, 'teams': dict(), 'sessions': []}
 
 

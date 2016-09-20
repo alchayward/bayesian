@@ -5,7 +5,7 @@ from game import completed
 
 def new_session(ts, preseeding=None, model_parameters=default_parameters):
     return {'teams': ts,
-            'rounds': [],
+            'rounds': dict(),
             'preseeding': preseeding,
             'proposed_games': [],
             'mc_traces': None,
@@ -16,19 +16,15 @@ def mc_traces_is_current(session):
     return set(session['mc_traces']['games']) == set(completed_games(session))
 
 
-def new_round(rnd):
-    return {'round': rnd, 'games': []}
-
-
 def find_round(session, game):
     for r in session['rounds']:
-        if game in r['games']:
+        if game in r['games'].values():
             return r
     return None
 
 
 def games(session):
-    return sum(r['games'] for r in session['rounds'])
+    return sum(gs for gs in session['rounds'].values())
 
 
 def teams(session):
