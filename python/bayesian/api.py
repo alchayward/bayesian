@@ -1,7 +1,10 @@
 from flask import request, url_for
 from flask.ext.api import FlaskAPI, status, exceptions
+import handlers as h
+import tournament as tour
 import rq
 import os
+from database import R
 app = FlaskAPI(__name__)
 
 # define api:
@@ -27,6 +30,26 @@ app = FlaskAPI(__name__)
 #       game
 #           teams
 #           scores
+
+
+def make_route(path):
+    return "/".join(path)
+
+
+def no_response():
+    return None
+
+
+def respond(call, methods):
+    return methods.get(call, no_response)()
+
+
+def route_struct(path, methods):
+    return None
+
+
+t_route = {'path': ['tournaments'], 'methods': {'GET': lambda : db['tournaments'],
+                             'POST': lambda data: h.new_tournament(tour.new_tournament())}
 
 def note_repr(key):
     return {

@@ -4,7 +4,7 @@ from useful import flatten
 def new_game(ts, ss=None):
     if not ss:
         ss = dict(zip(ts, [None, None]))
-    return {'teams': ts, 'scores': ss}
+    return {'id': None, 'teams': ts, 'scores': ss}
 
 
 def scores(g):

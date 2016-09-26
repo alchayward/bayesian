@@ -2,6 +2,7 @@ from session import find_round, games
 from game import completed
 from models import model_from_parameters
 from montecarlo import get_trace_dict
+from database import R
 
 def get_item_id(ind_dict):
     # Check if it's in there first?
